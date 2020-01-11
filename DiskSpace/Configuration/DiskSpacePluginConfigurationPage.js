@@ -139,9 +139,9 @@
 
             ApiClient.getPluginConfiguration(pluginId).then((config) => {
 
-                var usedSpaceColor        = config.UsedColor ? config.UsedColor : "#000";
-                var usedSpaceOutline      = config.UsedOutline ? config.UsedOutline : "#000";
-                var availableSpaceColor   = config.AvailableColor ? config.AvailableColor : "#fff";
+                var usedSpaceColor        = config.UsedColor        ? config.UsedColor        : "#000";
+                var usedSpaceOutline      = config.UsedOutline      ? config.UsedOutline      : "#000";
+                var availableSpaceColor   = config.AvailableColor   ? config.AvailableColor   : "#fff";
                 var availableSpaceOutline = config.AvailableOutline ? config.AvailableOutline : "#fff";
 
                 drivesContainer.innerHTML = '';
