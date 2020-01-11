@@ -4,9 +4,9 @@
 
         function openDialog(view, Chart) {
             var dlg = dialogHelper.createDialog({
-                size: "medium-tall",
-                removeOnClose: !0,
-                scrollY: !1
+                size          : "medium-tall",
+                removeOnClose : !0,
+                scrollY       : !1
             });
 
             dlg.classList.add("formDialog");
@@ -71,15 +71,15 @@
             ApiClient.getPluginConfiguration(pluginId).then((config) => {
 
                 if (config.AvailableColor) {
-                    dlg.querySelector('#availableSpaceFillColorText').value = config.AvailableColor;
+                    dlg.querySelector('#availableSpaceFillColorText').value    = config.AvailableColor;
                     dlg.querySelector('#availableSpaceOutlineColorText').value = config.AvailableOutline;
-                    dlg.querySelector('#usedSpaceFillColorText').value = config.UsedColor;
-                    dlg.querySelector('#usedSpaceOutlineColorText').value = config.UsedOutline;
+                    dlg.querySelector('#usedSpaceFillColorText').value         = config.UsedColor;
+                    dlg.querySelector('#usedSpaceOutlineColorText').value      = config.UsedOutline;
 
-                    dlg.querySelector('#availableSpaceFillColor').value = config.AvailableColor;
-                    dlg.querySelector('#availableSpaceOutlineColor').value = config.AvailableOutline;
-                    dlg.querySelector('#usedSpaceFillColor').value = config.UsedColor;
-                    dlg.querySelector('#usedSpaceOutlineColor').value = config.UsedOutline;
+                    dlg.querySelector('#availableSpaceFillColor').value        = config.AvailableColor;
+                    dlg.querySelector('#availableSpaceOutlineColor').value     = config.AvailableOutline;
+                    dlg.querySelector('#usedSpaceFillColor').value             = config.UsedColor;
+                    dlg.querySelector('#usedSpaceOutlineColor').value          = config.UsedOutline;
                 }
 
                 dlg.querySelector('#availableSpaceFillColor').addEventListener('change',
@@ -138,9 +138,10 @@
             var drivesContainer = view.querySelector('#drivesContainer');
 
             ApiClient.getPluginConfiguration(pluginId).then((config) => {
-                var usedSpaceColor = config.UsedColor ? config.UsedColor : "#000";
-                var usedSpaceOutline = config.UsedOutline ? config.UsedOutline : "#000";
-                var availableSpaceColor = config.AvailableColor ? config.AvailableColor : "#fff";
+
+                var usedSpaceColor        = config.UsedColor ? config.UsedColor : "#000";
+                var usedSpaceOutline      = config.UsedOutline ? config.UsedOutline : "#000";
+                var availableSpaceColor   = config.AvailableColor ? config.AvailableColor : "#fff";
                 var availableSpaceOutline = config.AvailableOutline ? config.AvailableOutline : "#fff";
 
                 drivesContainer.innerHTML = '';
@@ -156,10 +157,8 @@
                     }
 
                     for (var i = 0; i <= driveData.length - 1; i++) {
-                        html +=
-                            '<div class="sectionContainer" style="margin:1em">';
-                        html +=
-                            '<div class="paperList" style="align-items: center; justify-content: center; display: flex;">';
+                        html += '<div class="sectionContainer" style="margin:1em">';
+                        html += '<div class="paperList" style="align-items: center; justify-content: center; display: flex;">';
                         html += '<h2 class="sectionTitle">' + driveData[i].DriveName + '</h2>';
                         html += '<div class="chart-container" style="position: relative;">';
                         html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="250" height="250"></canvas>';
@@ -179,26 +178,20 @@
                                 type: 'doughnut',
                                 label: driveData[t].DriveName,
                                 data: {
-                                    labels: ['Used', 'Available'],
-                                    datasets: [
+                                    labels   : ['Used', 'Available'],
+                                    datasets : [
                                         {
-                                            data: [driveData[t].UsedSpace, driveData[t].FreeSpace],
-                                            backgroundColor: [
-                                                usedSpaceColor,
-                                                availableSpaceColor
-                                            ],
-                                            borderColor: [
-                                                usedSpaceOutline,
-                                                availableSpaceOutline
-                                            ],
-                                            borderWidth: 1
+                                            data            : [ driveData[t].UsedSpace, driveData[t].FreeSpace ],
+                                            backgroundColor : [ usedSpaceColor, availableSpaceColor ],
+                                            borderColor     : [ usedSpaceOutline, availableSpaceOutline ],
+                                            borderWidth     : 1
                                         }
                                     ]
                                 },
                                 options: {
-                                    "cutoutPercentage": 40,
-                                    legend: {
-                                        onClick: () => {
+                                    "cutoutPercentage" : 40,
+                                    legend : {
+                                        onClick : () => {
                                             openDialog(view, Chart);
                                         }
                                     }
@@ -214,15 +207,12 @@
             
             view.addEventListener('viewshow',
                 () => {
-                    //loading.show();
-
+                    
                     require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
-                        (chart) => { 
+                        (chart) => {
+
                             drawDriveChart(view, chart);
-                            //view.querySelector('#openSettingsDialog').addEventListener('click', (e) => {
-                            //    e.preventDefault();
-                            //    openDialog(view, chart);
-                            //});
+                            
                         });
                 });
         }

@@ -48,19 +48,23 @@ namespace DiskSpace
                 var drives = new List<DriveData>();
                 foreach (var dir in FileSystem.GetDrives())
                 {
-                    if (dir.Name.Split('\\').Length > 2) continue;
+                    if (dir.Name.Split('\\').Length > 2)  continue;
+                    if (dir.Name.Equals("etc"))           continue;
+                    if(dir.Name.Substring(0).Equals("/")) continue;
 
-                    var d= new DriveInfo(dir.Name);
+                    var d = new DriveInfo(dir.Name);
+                    if (d.TotalSize <= 0) continue;
+
                     drives.Add(new DriveData()
                     {
-                        DriveName = d.Name,
-                        TotalSize = d.TotalSize,
-                        UsedSpace = d.TotalSize - d.TotalFreeSpace,
-                        FreeSpace = d.TotalFreeSpace,
-                        Format = d.DriveFormat,
-                        FriendlyName = d.Name.Replace(@":\", ""),
+                        DriveName     = d.Name,
+                        TotalSize     = d.TotalSize,
+                        UsedSpace     = d.TotalSize - d.TotalFreeSpace,
+                        FreeSpace     = d.TotalFreeSpace,
+                        Format        = d.DriveFormat,
+                        FriendlyName  = d.Name.Replace(@":\", ""),
                         FriendlyTotal = FileSizeConversions.SizeSuffix(d.TotalSize),
-                        FriendlyUsed = FileSizeConversions.SizeSuffix((d.TotalSize - d.TotalFreeSpace))
+                        FriendlyUsed  = FileSizeConversions.SizeSuffix((d.TotalSize - d.TotalFreeSpace))
                     });
                 }
                 /*
