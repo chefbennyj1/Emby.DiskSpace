@@ -48,7 +48,7 @@ namespace DiskSpace
                 var drives = new List<DriveData>();
                 foreach (var dir in FileSystem.GetDrives())
                 {
-                    //if (dir.Name.Split('\\').Length > 0) continue;
+                    if (dir.Name.Split('\\').Length > 2) continue;
 
                     var d= new DriveInfo(dir.Name);
                     drives.Add(new DriveData()
