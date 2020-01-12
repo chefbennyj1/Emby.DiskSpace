@@ -49,15 +49,15 @@ namespace DiskSpace
                 foreach (var dir in FileSystem.GetDrives())
                 {
                     if (dir.Name.Split('\\').Length > 2)  continue;
-                    if (dir.Name.Split('/').Length > 2) continue;
-
-                    switch (dir.Name.Split('/')[1])
+                    
+                    switch (dir.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
                     {
                         case "etc":
                         case "dev":
                         case "run":
                         case "snap":
                         case "sys":
+                        case "proc":
                             continue;
                     }
                     
