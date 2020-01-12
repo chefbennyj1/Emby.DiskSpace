@@ -49,9 +49,18 @@ namespace DiskSpace
                 foreach (var dir in FileSystem.GetDrives())
                 {
                     if (dir.Name.Split('\\').Length > 2)  continue;
-                    if (dir.Name.Equals("etc"))           continue;
-                    if(dir.Name.Substring(0).Equals("/")) continue;
+                    if (dir.Name.Split('/').Length > 2) continue;
 
+                    switch (dir.Name.Split('/')[1])
+                    {
+                        case "etc":
+                        case "dev":
+                        case "run":
+                        case "snap":
+                        case "sys":
+                            continue;
+                    }
+                    
                     var d = new DriveInfo(dir.Name);
                     if (d.TotalSize <= 0) continue;
 
