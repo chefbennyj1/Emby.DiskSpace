@@ -1,26 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.AccessControl;
-using System.Linq;
-
-using System.Text;
+using System.Linq.Expressions;
 using DiskSpace.Helpers;
-using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Services;
 
 namespace DiskSpace
 {
-
     public class DiskSpaceService : IService
     {
         [Route("/GetDriveData", "GET", Summary = "Get Drive Data")]
         public class DriveData : IReturn<string>
         {
-
             public string DriveName { get; set; }
             public long TotalSize { get; set; }
             public long UsedSpace { get; set; }
@@ -48,19 +41,20 @@ namespace DiskSpace
                 var drives = new List<DriveData>();
                 foreach (var dir in FileSystem.GetDrives())
                 {
-                    if (dir.Name.Split('\\').Length > 2)  continue;
-                    
-                    switch (dir.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
+                    try
                     {
-                        case "etc":
-                        case "dev":
-                        case "run":
-                        case "snap":
-                        case "sys":
-                        case "proc":
-                            continue;
+                        if (dir.Name.Split('\\').Length > 2) continue;
                     }
-                    
+                    catch { }
+
+                    try
+                    { 
+                        switch (dir.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
+                        {
+                            case "etc": case "dev": case "run": case "snap": case "sys": case "proc": continue;
+                        }
+                    } catch { }
+
                     var d = new DriveInfo(dir.Name);
                     if (d.TotalSize <= 0) continue;
 
@@ -91,6 +85,7 @@ namespace DiskSpace
                 }).ToList();
 */
                 return JsonSerializer.SerializeToString(drives);
+
             } catch (UnauthorizedAccessException e)
             {
                 // Have your code handle insufficient permissions here

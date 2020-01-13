@@ -171,7 +171,7 @@
                     drivesContainer.innerHTML += html;
 
                     for (var t = 0; t <= driveData.length - 1; t++) {
-                        var ctx = drivesContainer.querySelector('#drive' + driveData[t].FriendlyName);
+                        var ctx = drivesContainer.querySelector('#drive' + driveData[t].FriendlyName).getContext("2d");
 
                         var myChart = new Chart(ctx,
                             {
