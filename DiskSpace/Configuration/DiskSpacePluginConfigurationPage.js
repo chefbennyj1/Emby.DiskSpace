@@ -13,7 +13,7 @@
             dlg.classList.add("ui-body-a");
             dlg.classList.add("background-theme-a");
             dlg.classList.add("colorChooser");
-            dlg.style = "max-width:25%; max-height: 75%";
+            dlg.style = "max-width:25%;";
 
             var html = '';
             html += '<div class="formDialogHeader" style="display:flex">';
