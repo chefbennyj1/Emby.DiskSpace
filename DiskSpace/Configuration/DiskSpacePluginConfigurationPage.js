@@ -157,8 +157,8 @@
                     }
 
                     for (var i = 0; i <= driveData.length - 1; i++) {
-                        html += '<div class="sectionContainer" style="margin:1em">';
-                        html += '<div class="paperList" style="padding:0.6em">';
+                        html += '<div class="cardBox visualCardBox" style="padding:1em;">';
+                        html += '<div class="cardScalable" style="padding:0.6em">';
                         html += '<h2 class="sectionTitle">' + driveData[i].DriveName + '</h2>';
                         html += '<div class="chart-container" style="position: relative;">';
                         html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="250" height="250"></canvas>';
