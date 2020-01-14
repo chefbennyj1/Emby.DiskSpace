@@ -65,7 +65,7 @@ namespace DiskSpace
                         UsedSpace     = d.TotalSize - d.TotalFreeSpace,
                         FreeSpace     = d.TotalFreeSpace,
                         Format        = d.DriveFormat,
-                        FriendlyName  = d.Name.Replace(@":\", ""),
+                        FriendlyName  = d.Name.Replace(@":\", "").Replace("/",""),
                         FriendlyTotal = FileSizeConversions.SizeSuffix(d.TotalSize),
                         FriendlyUsed  = FileSizeConversions.SizeSuffix((d.TotalSize - d.TotalFreeSpace))
                     });
