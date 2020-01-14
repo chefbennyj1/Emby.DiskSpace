@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq.Expressions;
 using DiskSpace.Helpers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Serialization;
@@ -27,6 +26,7 @@ namespace DiskSpace
         
         private IJsonSerializer JsonSerializer { get; set; }
         private IFileSystem FileSystem { get; set; }
+
         public DiskSpaceService(IJsonSerializer json, IFileSystem fS)
         {
             JsonSerializer = json;
@@ -35,39 +35,39 @@ namespace DiskSpace
         
         public string Get(DriveData request)
         {
-            
             try
             {
                 var drives = new List<DriveData>();
-                foreach (var dir in FileSystem.GetDrives())
+                foreach (var fileSystemMetadata in FileSystem.GetDrives())
                 {
                     try
                     {
-                        if (dir.Name.Split('\\').Length > 2) continue;
+                        if (fileSystemMetadata.Name.Split('\\').Length > 2) continue; //Windows
                     }
                     catch { }
 
                     try
                     { 
-                        switch (dir.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
+                        switch (fileSystemMetadata.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
                         {
                             case "etc": case "dev": case "run": case "snap": case "sys": case "proc": continue;
                         }
                     } catch { }
 
-                    var d = new DriveInfo(dir.Name);
-                    if (d.TotalSize <= 0) continue;
+                    var driveInfo = new DriveInfo(fileSystemMetadata.Name);
+
+                    if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
 
                     drives.Add(new DriveData()
                     {
-                        DriveName     = d.Name,
-                        TotalSize     = d.TotalSize,
-                        UsedSpace     = d.TotalSize - d.TotalFreeSpace,
-                        FreeSpace     = d.TotalFreeSpace,
-                        Format        = d.DriveFormat,
-                        FriendlyName  = d.Name.Replace(@":\", "").Replace("/",""),
-                        FriendlyTotal = FileSizeConversions.SizeSuffix(d.TotalSize),
-                        FriendlyUsed  = FileSizeConversions.SizeSuffix((d.TotalSize - d.TotalFreeSpace))
+                        DriveName     = driveInfo.Name,
+                        TotalSize     = driveInfo.TotalSize,
+                        UsedSpace     = driveInfo.TotalSize - driveInfo.TotalFreeSpace,
+                        FreeSpace     = driveInfo.TotalFreeSpace,
+                        Format        = driveInfo.DriveFormat,
+                        FriendlyName  = driveInfo.Name.Replace(@":\", "").Replace("/",""),
+                        FriendlyTotal = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
+                        FriendlyUsed  = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace))
                     });
                 }
                 /*

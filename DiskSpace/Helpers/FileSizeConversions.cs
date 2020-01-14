@@ -9,7 +9,7 @@ namespace DiskSpace.Helpers
 
         public static string SizeSuffix(Int64 value, int decimalPlaces = 1)
         {
-            if (value < 0) { return "-" + SizeSuffix(-value); }
+            if (value < 0) { return "-" + SizeSuffix(-value); } //Calls itself...
 
             int i = 0;
             decimal dValue = (decimal)value;

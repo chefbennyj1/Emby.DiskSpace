@@ -161,7 +161,7 @@
                         html += '<div class="cardScalable" style="padding:0.6em">';
                         html += '<h2 class="sectionTitle">' + driveData[i].DriveName + '</h2>';
                         html += '<div class="chart-container" style="position: relative;">';
-                        html += '<canvas id="drive' + driveData[i].FriendlyName + '"></canvas>';
+                        html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="275" height="275"></canvas>';
                         html += '</div>';
                         html += '<p>' + driveData[i].FriendlyUsed + "\\" + driveData[i].FriendlyTotal + '</p>';
                         html += '</div>';
