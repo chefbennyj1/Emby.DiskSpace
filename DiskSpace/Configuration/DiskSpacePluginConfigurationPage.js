@@ -1,5 +1,5 @@
-﻿define(["loading", "dialogHelper", "emby-checkbox", "emby-select", "emby-input"],
-    function(loading, dialogHelper) {
+﻿define(["require", "loading", "dialogHelper", "emby-checkbox", "emby-select", "emby-input"],
+    function(require, loading, dialogHelper) {
         var pluginId = "9ECAAC5F-435E-4C21-B1C0-D99423B68984";
 
         function openDialog(view, Chart) {
@@ -58,7 +58,7 @@
             html += '<input is="emby-input" type="text" name="usedSpaceOutlineColorText" id="usedSpaceOutlineColorText" class="emby-input"> ';
             html += '<div class="fieldDescription">Chart outline color for used disk space.</div>';
             html += '</div>';
-            
+           
             html += '<div class="formDialogFooter" style="padding-top:2em">';
             html += '<button id="okButton" is="emby-button" type="submit" class="raised button-submit block formDialogFooterItem emby-button">Ok</button>';
             html += '</div>';
@@ -80,6 +80,7 @@
                     dlg.querySelector('#availableSpaceOutlineColor').value     = config.AvailableOutline;
                     dlg.querySelector('#usedSpaceFillColor').value             = config.UsedColor;
                     dlg.querySelector('#usedSpaceOutlineColor').value          = config.UsedOutline;
+                    
                 }
 
                 dlg.querySelector('#availableSpaceFillColor').addEventListener('change',
@@ -106,6 +107,7 @@
                             dlg.querySelector('#usedSpaceOutlineColor').value;
                     });
 
+                
 
                 dlg.querySelector('#okButton').addEventListener('click',
                     () => {
@@ -114,7 +116,8 @@
                             AvailableColor   : dlg.querySelector('#availableSpaceFillColorText').value,
                             AvailableOutline : dlg.querySelector('#availableSpaceOutlineColorText').value,
                             UsedColor        : dlg.querySelector('#usedSpaceFillColorText').value,
-                            UsedOutline      : dlg.querySelector('#usedSpaceOutlineColorText').value
+                            UsedOutline      : dlg.querySelector('#usedSpaceOutlineColorText').value,
+                            
                         }
 
                         ApiClient.updatePluginConfiguration(pluginId, update).then(r => {
@@ -163,7 +166,7 @@
                         html += '<div class="chart-container" style="position: relative;">';
                         html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="275" height="275"></canvas>';
                         html += '</div>';
-                        html += '<p>' + driveData[i].FriendlyUsed + "\\" + driveData[i].FriendlyTotal + '</p>';
+                        html += '<p>' + driveData[i].VolumeLabel + " - " + driveData[i].FriendlyUsed + "\\" + driveData[i].FriendlyTotal + '</p>';
                         html += '</div>';
                         html += '</div>';
                     }

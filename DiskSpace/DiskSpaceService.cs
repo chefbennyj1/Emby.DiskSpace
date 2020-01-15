@@ -14,6 +14,7 @@ namespace DiskSpace
         public class DriveData : IReturn<string>
         {
             public string DriveName { get; set; }
+            public string VolumeLabel { get; set; }
             public long TotalSize { get; set; }
             public long UsedSpace { get; set; }
             public long FreeSpace { get; set; }
@@ -57,10 +58,11 @@ namespace DiskSpace
                     var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
                     if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
-
+                    
                     drives.Add(new DriveData()
                     {
                         DriveName     = driveInfo.Name,
+                        VolumeLabel   = driveInfo.VolumeLabel,
                         TotalSize     = driveInfo.TotalSize,
                         UsedSpace     = driveInfo.TotalSize - driveInfo.TotalFreeSpace,
                         FreeSpace     = driveInfo.TotalFreeSpace,
