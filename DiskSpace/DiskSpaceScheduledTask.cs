@@ -78,7 +78,7 @@ namespace DiskSpace
         {
             return new[]
             {
-                // Every 24 hours
+                
                 new TaskTriggerInfo
                 {
                     Type = TaskTriggerInfo.TriggerInterval,
