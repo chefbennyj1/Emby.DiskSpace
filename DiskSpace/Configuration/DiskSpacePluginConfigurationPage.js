@@ -203,8 +203,23 @@
                                         }
                                     },
                                     tooltips: {
+                                        callbacks: {
+                                            title: function (tooltipItem, data) {
+                                                return data['labels'][tooltipItem[0]['index']];
+                                            },
+                                            label: function (tooltipItem, data) {
+                                                return data['datasets'][0]['data'][tooltipItem['index']];
+                                            },
+                                            afterLabel: function (tooltipItem, data) {
+                                                var dataset = data['datasets'][0];
+                                                var total = dataset['data'][0] + dataset['data'][1];
+                                                var percent = Math.round((dataset['data'][tooltipItem['index']] / total) * 100);
+                                                return '(' + percent + '%)';
+                                            }
+                                        
+                                        },
                                         // Disable the on-canvas tooltip
-                                        enabled: false
+                                        //enabled: false 
                                     }
                                 }
                             });
