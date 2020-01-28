@@ -52,7 +52,7 @@ namespace DiskSpace
 
                 if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
 
-                var threshold = driveInfo.TotalSize - (driveInfo.TotalSize / 10);
+                var threshold = (0.9 * driveInfo.TotalSize);
                 if (driveInfo.AvailableFreeSpace < threshold) continue;
                 
 
@@ -93,10 +93,10 @@ namespace DiskSpace
         }
 
         public string Name => "Disk Space Notification";
-        public string Key => "Notifications";
+        public string Key => "Disk Space";
         public string Description => "Notify Admin Accounts about full disk partitions.";
         public string Category => "Notifications";
-        public bool IsHidden => true;
+        public bool IsHidden => false;
         public bool IsEnabled => true;
         public bool IsLogged => true;
     }
