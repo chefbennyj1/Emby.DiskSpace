@@ -11,6 +11,5 @@ namespace DiskSpace.Configuration
         public string AvailableOutline { get; set; }
         public string UsedColor { get; set; }
         public string UsedOutline { get; set; }
-        
     }
 }

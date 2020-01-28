@@ -174,8 +174,12 @@
                     drivesContainer.innerHTML += html;
 
                     for (var t = 0; t <= driveData.length - 1; t++) {
+
                         var ctx = drivesContainer.querySelector('#drive' + driveData[t].FriendlyName).getContext("2d");
 
+                        var usedSpaceFriendly      = driveData[t].FriendlyUsed;
+                        var availableSpaceFriendly = driveData[t].FriendlyAvailable;
+                        
                         var myChart = new Chart(ctx,
                             {
                                 type: 'doughnut',
@@ -197,6 +201,10 @@
                                         onClick : () => {
                                             openDialog(view, Chart);
                                         }
+                                    },
+                                    tooltips: {
+                                        // Disable the on-canvas tooltip
+                                        enabled: false
                                     }
                                 }
                             });

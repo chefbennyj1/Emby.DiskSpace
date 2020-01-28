@@ -2,11 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using DiskSpace.Helpers;
+using MediaBrowser.Controller.Data;
+using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Library;
+using MediaBrowser.Controller.Persistence;
+using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
+using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Services;
 
-namespace DiskSpace
+namespace DiskSpace.Api
 {
     public class DiskSpaceService : IService
     {
@@ -22,16 +28,20 @@ namespace DiskSpace
             public string FriendlyName { get; set; }
             public string FriendlyUsed { get; set; }
             public string FriendlyTotal { get; set; }
+            public string FriendlyAvailable { get; set; }
             public string Error { get; set; }
         }
         
         private IJsonSerializer JsonSerializer { get; set; }
         private IFileSystem FileSystem { get; set; }
-
-        public DiskSpaceService(IJsonSerializer json, IFileSystem fS)
+        private ILibraryManager LibraryManager { get; set; }
+        private readonly ILogger logger;
+        public DiskSpaceService(IJsonSerializer json, IFileSystem fS, ILogManager logManager, ILibraryManager libMan)
         {
             JsonSerializer = json;
             FileSystem = fS;
+            logger = logManager.GetLogger(GetType().Name);
+            LibraryManager = libMan;
         }
         
         public string Get(DriveData request)
@@ -41,9 +51,19 @@ namespace DiskSpace
                 var drives = new List<DriveData>();
                 foreach (var fileSystemMetadata in FileSystem.GetDrives())
                 {
+                    logger.Info(("DISK SPACE -- " + fileSystemMetadata.FullName).AsMemory());
                     try
                     {
-                        if (fileSystemMetadata.Name.Split('\\').Length > 2) continue; //Windows
+                        if (fileSystemMetadata.Name.Substring(0, 4) == "\\\\")
+                        {
+
+                        }
+                    }
+                    catch { }
+
+                    try
+                    {
+                        if (fileSystemMetadata.Name.Substring(1,2).Equals(":\\") && fileSystemMetadata.Name.Split('\\').Length > 2) continue; //Windows
                     }
                     catch { }
 
@@ -61,31 +81,19 @@ namespace DiskSpace
                     
                     drives.Add(new DriveData()
                     {
-                        DriveName     = driveInfo.Name,
-                        VolumeLabel   = driveInfo.VolumeLabel,
-                        TotalSize     = driveInfo.TotalSize,
-                        UsedSpace     = driveInfo.TotalSize - driveInfo.TotalFreeSpace,
-                        FreeSpace     = driveInfo.TotalFreeSpace,
-                        Format        = driveInfo.DriveFormat,
-                        FriendlyName  = driveInfo.Name.Replace(@":\", "").Replace("/",""),
-                        FriendlyTotal = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
-                        FriendlyUsed  = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace))
+                        DriveName         = driveInfo.Name,
+                        VolumeLabel       = driveInfo.VolumeLabel,
+                        TotalSize         = driveInfo.TotalSize,
+                        UsedSpace         = driveInfo.TotalSize - driveInfo.TotalFreeSpace,
+                        FreeSpace         = driveInfo.TotalFreeSpace,
+                        Format            = driveInfo.DriveFormat,
+                        FriendlyName      = driveInfo.Name.Replace(@":\", "").Replace("/",""),
+                        FriendlyTotal     = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
+                        FriendlyUsed      = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace)),
+                        FriendlyAvailable = FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)
                     });
                 }
-                /*
-                // ReSharper disable once ComplexConditionExpression
-                var drives = DriveInfo.GetDrives().Select(d => new DriveData()
-                {
-                    DriveName = d.Name,
-                    TotalSize = d.TotalSize,
-                    UsedSpace = d.TotalSize - d.TotalFreeSpace,
-                    FreeSpace = d.TotalFreeSpace,
-                    Format = d.DriveFormat,
-                    FriendlyName = d.Name.Replace(@":\", ""),
-                    FriendlyTotal = FileSizeConversions.SizeSuffix(d.TotalSize),
-                    FriendlyUsed = FileSizeConversions.SizeSuffix((d.TotalSize - d.TotalFreeSpace))
-                }).ToList();
-*/
+                
                 return JsonSerializer.SerializeToString(drives);
 
             } catch (UnauthorizedAccessException e)
