@@ -51,12 +51,12 @@ namespace DiskSpace
                 var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
                 if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
-
-                var threshold = driveInfo.TotalSize - (long)(1e+10); //10GB
-
-                if (driveInfo.TotalFreeSpace < threshold) continue;
                 
+                var totalSize = Math.Round(driveInfo.TotalSize / 1000000000.0) ;
+                var freeSpace = Math.Round(driveInfo.AvailableFreeSpace / 1000000000.0);
 
+                if ((totalSize - freeSpace) > 10.0) continue;
+                
                 var request = new NotificationRequest()
                 {
                     Date = DateTime.Now,
