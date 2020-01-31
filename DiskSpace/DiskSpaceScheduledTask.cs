@@ -31,6 +31,7 @@ namespace DiskSpace
         }
         public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
         {
+            var step = 100.0 / FileSystem.GetDrives().Count;
             foreach (var fileSystemMetadata in FileSystem.GetDrives())
             {
                 try
@@ -50,13 +51,20 @@ namespace DiskSpace
 
                 var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
+                progress.Report(step - 1);
+
                 if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
                 
-                var totalSize = Math.Round(driveInfo.TotalSize / 1000000000.0) ;
                 var freeSpace = Math.Round(driveInfo.AvailableFreeSpace / 1000000000.0);
+                var config = Plugin.Instance.Configuration;
+                var threshold = 10.0;
+                if (config.Threshold != null)
+                {
+                    threshold = Convert.ToDouble(config.Threshold);
+                }
 
-                if ((totalSize - freeSpace) > 10.0) continue;
-                
+                if (freeSpace > threshold) continue;
+
                 var request = new NotificationRequest()
                 {
                     Date = DateTime.Now,
@@ -71,7 +79,8 @@ namespace DiskSpace
                 
                 await NotificationManager.SendNotification(request, CancellationToken.None);
             }
-            
+
+            progress.Report(100.0);
 
         }
         

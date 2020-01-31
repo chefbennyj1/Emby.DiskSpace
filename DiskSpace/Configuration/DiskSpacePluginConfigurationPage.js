@@ -21,7 +21,7 @@
             html += '</div>';
 
             html += '<div class="formDialogContent" style="margin:2em;">';
-            html += '<form class="dialogContentInner dialog-content-centered dialogContentInner-mini">';
+            html += '<form class="dialogContentInner dialog-content-centered dialogContentInner-mini scrollY">';
 
 
             html += '<div class="inputContainer">';
@@ -58,11 +58,15 @@
             html += '<input is="emby-input" type="text" name="usedSpaceOutlineColorText" id="usedSpaceOutlineColorText" class="emby-input"> ';
             html += '<div class="fieldDescription">Chart outline color for used disk space.</div>';
             html += '</div>';
-           
-            html += '<div class="formDialogFooter" style="padding-top:2em">';
-            html += '<button id="okButton" is="emby-button" type="submit" class="raised button-submit block formDialogFooterItem emby-button">Ok</button>';
-            html += '</div>';
 
+            html += '<div class="inputContainer">';
+            html += '<label class="inputLabel inputLabelUnfocused" for="notificationAlertThreshold">Notification threshold (Gigabytes)</label>';
+            html += '<input is="emby-input" type="number" step="1" min="1" name="notificationAlertThreshold" id="notificationAlertThreshold" class="emby-input"> ';
+            html += '<div class="fieldDescription">Threshold when using Embys built-in notification system, to alert an admin when disk partitions are almost full. Default is 10 gigabytes</div>';
+            html += '</div>';
+             
+            html += '<button id="okButton" is="emby-button" type="submit" class="raised button-submit block emby-button">Ok</button>';
+             
             html += '</form>';
             html += '</div>';
 
@@ -81,6 +85,12 @@
                     dlg.querySelector('#usedSpaceFillColor').value             = config.UsedColor;
                     dlg.querySelector('#usedSpaceOutlineColor').value          = config.UsedOutline;
                     
+                }
+
+                if (config.Threshold) {
+                    dlg.querySelector('#notificationAlertThreshold').value = config.Threshold || 10;
+                } else {
+                    dlg.querySelector('#notificationAlertThreshold').value = 10;
                 }
 
                 dlg.querySelector('#availableSpaceFillColor').addEventListener('change',
@@ -105,19 +115,17 @@
                     () => {
                         dlg.querySelector('#usedSpaceOutlineColorText').value =
                             dlg.querySelector('#usedSpaceOutlineColor').value;
-                    });
-
-                
+                    }); 
 
                 dlg.querySelector('#okButton').addEventListener('click',
                     () => {
-
+                       
                         var update = {
                             AvailableColor   : dlg.querySelector('#availableSpaceFillColorText').value,
                             AvailableOutline : dlg.querySelector('#availableSpaceOutlineColorText').value,
                             UsedColor        : dlg.querySelector('#usedSpaceFillColorText').value,
                             UsedOutline      : dlg.querySelector('#usedSpaceOutlineColorText').value,
-                            
+                            Threshold        : dlg.querySelector('#notificationAlertThreshold').value !== "" ? dlg.querySelector('#notificationAlertThreshold').value : 10
                         }
 
                         ApiClient.updatePluginConfiguration(pluginId, update).then(r => {
@@ -176,10 +184,7 @@
                     for (var t = 0; t <= driveData.length - 1; t++) {
 
                         var ctx = drivesContainer.querySelector('#drive' + driveData[t].FriendlyName).getContext("2d");
-
-                        var usedSpaceFriendly      = driveData[t].FriendlyUsed;
-                        var availableSpaceFriendly = driveData[t].FriendlyAvailable;
-                        
+                           
                         var myChart = new Chart(ctx,
                             {
                                 type: 'doughnut',
@@ -191,24 +196,21 @@
                                             data            : [ driveData[t].UsedSpace, driveData[t].FreeSpace ],
                                             backgroundColor : [ usedSpaceColor, availableSpaceColor ],
                                             borderColor     : [ usedSpaceOutline, availableSpaceOutline ],
-                                            borderWidth     : 1
+                                            borderWidth: 1,
+                                            dataFriendly    : [ driveData[t].FriendlyUsed, driveData[t].FriendlyAvailable ]
                                         }
                                     ]
                                 },
                                 options: {
                                     "cutoutPercentage" : 40,
-                                    legend : {
-                                        onClick : () => {
-                                            openDialog(view, Chart);
-                                        }
-                                    },
+                                    
                                     tooltips: {
                                         callbacks: {
                                             title: function (tooltipItem, data) {
                                                 return data['labels'][tooltipItem[0]['index']];
                                             },
                                             label: function (tooltipItem, data) {
-                                                return data['datasets'][0]['data'][tooltipItem['index']];
+                                                return data['datasets'][0]['dataFriendly'][tooltipItem['index']];
                                             },
                                             afterLabel: function (tooltipItem, data) {
                                                 var dataset = data['datasets'][0];
@@ -238,7 +240,10 @@
                         (chart) => {
 
                             drawDriveChart(view, chart);
-                            
+                            view.querySelector('#settingsButton').addEventListener('click',
+                                () => {
+                                    openDialog(view, chart);
+                                });
                         });
                 });
         }
