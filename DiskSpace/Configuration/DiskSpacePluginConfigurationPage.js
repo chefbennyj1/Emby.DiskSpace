@@ -1,4 +1,4 @@
-﻿define(["require", "loading", "dialogHelper", "emby-checkbox", "emby-select", "emby-input"],
+﻿define(["require", "loading", "dialogHelper", "emby-checkbox", "emby-select"],
     function(require, loading, dialogHelper) {
         var pluginId = "9ECAAC5F-435E-4C21-B1C0-D99423B68984";
 
@@ -7,7 +7,7 @@
 
             ApiClient.getJSON(ApiClient.getUrl("GetDriveData")).then((driveData) => {
 
-                var monitoredPartitions = [];
+               
                 var dlg = dialogHelper.createDialog({
                     size: "medium-tall",
                     removeOnClose: !0,
@@ -34,10 +34,10 @@
                 html +=
                     '<label class="inputLabel inputLabelUnfocused" for="availableSpaceFillColor">Available space fill color</label>';
                 html +=
-                    '<input is="emby-input" type="color" name="availableSpaceFillColor" id="availableSpaceFillColor" label="Available space fill color" class="emby-input" style="height:2em"> ';
+                    '<input type="color" name="availableSpaceFillColor" id="availableSpaceFillColor" label="Available space fill color" class="emby-input" style="height:2em"> ';
 
                 html +=
-                    '<input is="emby-input" type="text" name="availableSpaceFillColorText" id="availableSpaceFillColorText" class="emby-input"> ';
+                    '<input type="text" name="availableSpaceFillColorText" id="availableSpaceFillColorText" class="emby-input"> ';
                 html += '<div class="fieldDescription">Chart fill color for available disk space.</div>';
                 html += '</div>';
 
@@ -46,10 +46,10 @@
                 html +=
                     '<label class="inputLabel inputLabelUnfocused" for="availableSpaceOutlineColor">Available space outline</label>';
                 html +=
-                    '<input is="emby-input" type="color" name="availableSpaceOutlineColor" id="availableSpaceOutlineColor" label="Available space outline color" class="emby-input" style="height:2em"> ';
+                    '<input type="color" name="availableSpaceOutlineColor" id="availableSpaceOutlineColor" label="Available space outline color" class="emby-input" style="height:2em"> ';
 
                 html +=
-                    '<input is="emby-input" type="text" name="availableSpaceFillColorText" id="availableSpaceOutlineColorText" class="emby-input"> ';
+                    '<input type="text" name="availableSpaceFillColorText" id="availableSpaceOutlineColorText" class="emby-input"> ';
                 html += '<div class="fieldDescription">Chart outline color for available disk space.</div>';
                 html += '</div>';
 
@@ -58,10 +58,10 @@
                 html +=
                     '<label class="inputLabel inputLabelUnfocused" for="usedSpaceFillColor">Used space fill color</label>';
                 html +=
-                    '<input is="emby-input" type="color" name="usedSpaceFillColor" id="usedSpaceFillColor" label="Used space fill color" class="emby-input" style="height:2em"> ';
+                    '<input type="color" name="usedSpaceFillColor" id="usedSpaceFillColor" label="Used space fill color" class="emby-input" style="height:2em"> ';
 
                 html +=
-                    '<input is="emby-input" type="text" name="usedSpaceFillColorText" id="usedSpaceFillColorText" class="emby-input"> ';
+                    '<input type="text" name="usedSpaceFillColorText" id="usedSpaceFillColorText" class="emby-input"> ';
                 html += '<div class="fieldDescription">Chart fill color for used disk space.</div>';
                 html += '</div>';
 
@@ -70,10 +70,10 @@
                 html +=
                     '<label class="inputLabel inputLabelUnfocused" for="usedSpaceOutlineColor">Used space outline color</label>';
                 html +=
-                    '<input is="emby-input" type="color" name="usedSpaceOutlineColor" id="usedSpaceOutlineColor" label="Used space outline color" class="emby-input" style="height:2em"> ';
+                    '<input type="color" name="usedSpaceOutlineColor" id="usedSpaceOutlineColor" label="Used space outline color" class="emby-input" style="height:2em"> ';
 
                 html +=
-                    '<input is="emby-input" type="text" name="usedSpaceOutlineColorText" id="usedSpaceOutlineColorText" class="emby-input"> ';
+                    '<input type="text" name="usedSpaceOutlineColorText" id="usedSpaceOutlineColorText" class="emby-input"> ';
                 html += '<div class="fieldDescription">Chart outline color for used disk space.</div>';
                 html += '</div>';
 
@@ -88,7 +88,7 @@
                 html +=
                     '<label class="inputLabel inputLabelUnfocused" for="notificationAlertThreshold">Notification threshold (Gigabytes)</label>';
                 html +=
-                    '<input is="emby-input" type="number" step="1" min="1" name="notificationAlertThreshold" id="notificationAlertThreshold" class="emby-input"> ';
+                    '<input type="number" step="1" min="1" name="notificationAlertThreshold" id="notificationAlertThreshold" class="emby-input"> ';
                 html +=
                     '<div class="fieldDescription">Threshold when using Embys built-in notification system, to alert an admin when disk partitions are almost full. Default is 10 gigabytes</div>';
                 html += '</div>';
@@ -102,6 +102,8 @@
                 dlg.innerHTML = html;
                 dialogHelper.open(dlg);
                 ApiClient.getPluginConfiguration(pluginId).then((config) => {
+
+                    var ignoredPartitions = [];
 
                     if (config.AvailableColor) {
                         dlg.querySelector('#availableSpaceFillColorText').value = config.AvailableColor;
@@ -122,25 +124,25 @@
                         dlg.querySelector('#notificationAlertThreshold').value = 10;
                     }
 
-                    if (config.MonitoredPartitions) {
-                        monitoredPartitions = config.MonitoredPartitions;
-                        config.MonitoredPartitions.forEach((monitoredPartition) => {
-                            dlg.querySelector("#" + monitoredPartition.Name).checked = monitoredPartition.Monitored;
-                        });
-                    }
+                    driveData.forEach((drive) => {
+                        if (config.IgnoredPartitions) {
+                            if (config.IgnoredPartitions.includes(drive.FriendlyName)) {
+                                dlg.querySelector('#' + drive.FriendlyName).checked = false;
+                            } else {
+                                dlg.querySelector('#' + drive.FriendlyName).checked = true;
+                            }
+                        } else {
+                            dlg.querySelector('#' + drive.FriendlyName).checked = true;
+                        }
+                    });
 
-                    dlg.querySelectorAll('input[type=checkbox]').forEach((box) => {
-                        box.addEventListener('change',
-                            (e) => {
-                                var newPartition = {
-                                    Name: e.target.id,
-                                    Monitored : e.target.checked
-                                }
-                                
-                                if (monitoredPartitions.length) {
-                                    monitoredPartitions = monitoredPartitions.filter(item => item.Name !== newPartition.Name); 
-                                }
-                                monitoredPartitions.push(newPartition);
+                    dlg.querySelectorAll('input[type=checkbox]').forEach((checkbox) => {
+                        checkbox.addEventListener('change',
+                            (e) => { 
+                                config.IgnoredPartitions ? e.target.checked ? config.IgnoredPartitions = config.IgnoredPartitions.filter(p => p !== e.target.id)
+                                    : config.IgnoredPartitions.push(e.target.id)
+                                    : !e.target.checked ? config.IgnoredPartitions = [e.target.id]
+                                    : config.IgnoredPartitions.push(e.target.id);
                             });
                     });
 
@@ -173,20 +175,18 @@
                         () => {
                                
                             var update = {
-                                AvailableColor: dlg.querySelector('#availableSpaceFillColorText').value,
-                                AvailableOutline: dlg.querySelector('#availableSpaceOutlineColorText').value,
-                                UsedColor: dlg.querySelector('#usedSpaceFillColorText').value,
-                                UsedOutline: dlg.querySelector('#usedSpaceOutlineColorText').value,
-                                Threshold: dlg.querySelector('#notificationAlertThreshold').value !== ""
-                                    ? dlg.querySelector('#notificationAlertThreshold').value
-                                    : 10,
-                                MonitoredPartitions: monitoredPartitions
+                                AvailableColor    : dlg.querySelector('#availableSpaceFillColorText').value       ? dlg.querySelector('#availableSpaceFillColorText').value    : '#fff',
+                                AvailableOutline  : dlg.querySelector('#availableSpaceOutlineColorText').value    ? dlg.querySelector('#availableSpaceOutlineColorText').value : '#000',
+                                UsedColor         : dlg.querySelector('#usedSpaceFillColorText').value            ? dlg.querySelector('#usedSpaceFillColorText').value         : '#000',
+                                UsedOutline       : dlg.querySelector('#usedSpaceOutlineColorText').value         ? dlg.querySelector('#usedSpaceOutlineColorText').value      : '#000',
+                                Threshold         : dlg.querySelector('#notificationAlertThreshold').value !== "" ? dlg.querySelector('#notificationAlertThreshold').value     : 10,
+                                IgnoredPartitions : config.IgnoredPartitions                                      ? config.IgnoredPartitions                                   : []
                             }
 
-                            ApiClient.updatePluginConfiguration(pluginId, update).then(r => {
-                                Dashboard.processPluginConfigurationUpdateResult(r);
-                                drawDriveChart(view, Chart);
+                            ApiClient.updatePluginConfiguration(pluginId, update).then((r) => {
                                 dialogHelper.close(dlg);
+                                drawDriveChart(view, Chart);
+                                Dashboard.processPluginConfigurationUpdateResult(r);
                             });
 
                         });
@@ -226,7 +226,7 @@
                 var usedSpaceColor        = config.UsedColor        ? config.UsedColor        : "#000";
                 var usedSpaceOutline      = config.UsedOutline      ? config.UsedOutline      : "#000";
                 var availableSpaceColor   = config.AvailableColor   ? config.AvailableColor   : "#fff";
-                var availableSpaceOutline = config.AvailableOutline ? config.AvailableOutline : "#fff";
+                var availableSpaceOutline = config.AvailableOutline ? config.AvailableOutline : "#000";
 
                 drivesContainer.innerHTML = '';
 

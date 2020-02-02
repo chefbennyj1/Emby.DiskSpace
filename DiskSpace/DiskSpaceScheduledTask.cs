@@ -53,10 +53,18 @@ namespace DiskSpace
 
                 progress.Report(step - 1);
 
+                var config = Plugin.Instance.Configuration;
+                var friendlyName = driveInfo.Name.Replace(@":\", "").Replace("/", "");
+
+                if (config.IgnoredPartitions != null)
+                {
+                    if (config.IgnoredPartitions.Exists(d => d == friendlyName)) continue;
+                }
+
                 if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
                 
                 var freeSpace = Math.Round(driveInfo.AvailableFreeSpace / 1000000000.0);
-                var config = Plugin.Instance.Configuration;
+                
                 var threshold = 10.0;
                 if (config.Threshold != null)
                 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DiskSpace.Configuration;
 using DiskSpace.Helpers;
 using MediaBrowser.Controller.Data;
 using MediaBrowser.Controller.Entities;
@@ -80,8 +81,20 @@ namespace DiskSpace.Api
                     var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
                     if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
+
                     var config = Plugin.Instance.Configuration;
+                    Plugin.Instance.UpdateConfiguration(config);
                     var friendlyName = driveInfo.Name.Replace(@":\", "").Replace("/", "");
+
+                    var isMonitored = true;
+                    if (config.IgnoredPartitions != null)
+                    {
+                        if (config.IgnoredPartitions.Exists(d => d == friendlyName))
+                        {
+                            isMonitored = false;
+                        }
+                    }
+                    
                     drives.Add(new DriveData()
                     {
                         DriveName         = driveInfo.Name,
@@ -94,7 +107,7 @@ namespace DiskSpace.Api
                         FriendlyTotal     = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
                         FriendlyUsed      = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace)),
                         FriendlyAvailable = FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace),
-                        IsMonitored       = config.MonitoredPartitions.FirstOrDefault(d => d.Name == friendlyName)?.Monitored ?? true
+                        IsMonitored       = isMonitored
                     });
                 }
                 
