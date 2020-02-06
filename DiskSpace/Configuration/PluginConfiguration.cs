@@ -12,5 +12,6 @@ namespace DiskSpace.Configuration
         public string UsedOutline { get; set; }
         public string Threshold { get; set; }
         public List<string> IgnoredPartitions { get; set; }
+        public string DataDisplayRender { get; set; }
     }
 }
