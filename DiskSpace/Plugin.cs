@@ -40,7 +40,7 @@ namespace DiskSpace
                 Name = "DiskSpacePluginConfigurationPage",
                 EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginConfigurationPage.html",
                 DisplayName = "Disk Space",
-                EnableInMainMenu = true
+                EnableInMainMenu = true,
                 
             },
             new PluginPageInfo

@@ -18,6 +18,12 @@ namespace DiskSpace.Api
 {
     public class DiskSpaceService : IService
     {
+        [Route("/GetTotalStorage", "GET", Summary = "Get Total Storage  Data")]
+        public class TotalStorage : IReturn<string>
+        { 
+            public string Total { get; set; }
+        }
+
         [Route("/GetDriveData", "GET", Summary = "Get Drive Data")]
         public class DriveData : IReturn<string>
         {
@@ -46,8 +52,39 @@ namespace DiskSpace.Api
             logger = logManager.GetLogger(GetType().Name);
             LibraryManager = libMan;
         }
-        
+
+        public string Get(TotalStorage request)
+        {
+            var data = GetDriveData();
+            if (data == null)
+            {
+                return JsonSerializer.SerializeToString(new DriveData()
+                {
+                    Error = "Access to drives not allowed."
+                });
+            }
+            return JsonSerializer.SerializeToString(new TotalStorage()
+            {
+                Total = FileSizeConversions.SizeSuffix(data.Where(d => d.IsMonitored).Sum(partition => partition.TotalSize))
+            });
+        }
+
         public string Get(DriveData request)
+        {
+            var data = GetDriveData();
+            if (data == null)
+            {
+                return JsonSerializer.SerializeToString(new DriveData()
+                {
+                    Error = "Access to drives not allowed."
+                });
+            }
+
+            return JsonSerializer.SerializeToString(data);
+            
+        }
+
+        private List<DriveData> GetDriveData()
         {
             try
             {
@@ -62,21 +99,35 @@ namespace DiskSpace.Api
 
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                    }
 
                     try
                     {
-                        if (fileSystemMetadata.Name.Substring(1,2).Equals(":\\") && fileSystemMetadata.Name.Split('\\').Length > 2) continue; //Windows
+                        if (fileSystemMetadata.Name.Substring(1, 2).Equals(":\\") &&
+                            fileSystemMetadata.Name.Split('\\').Length > 2) continue; //Windows
                     }
-                    catch { }
+                    catch
+                    {
+                    }
 
                     try
-                    { 
-                        switch (fileSystemMetadata.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
+                    {
+                        switch (fileSystemMetadata.Name.Split('/')[1]
+                        ) //Ignore these mount types in Linux that get returned from the Emby API
                         {
-                            case "etc": case "dev": case "run": case "snap": case "sys": case "proc": continue;
+                            case "etc":
+                            case "dev":
+                            case "run":
+                            case "snap":
+                            case "sys":
+                            case "proc": continue;
                         }
-                    } catch { }
+                    }
+                    catch
+                    {
+                    }
 
                     var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
@@ -94,7 +145,7 @@ namespace DiskSpace.Api
                             isMonitored = false;
                         }
                     }
-                    
+
                     drives.Add(new DriveData()
                     {
                         DriveName         = driveInfo.Name,
@@ -110,17 +161,16 @@ namespace DiskSpace.Api
                         IsMonitored       = isMonitored
                     });
                 }
-                
-                return JsonSerializer.SerializeToString(drives);
 
-            } catch (UnauthorizedAccessException e)
+                return drives;
+            }
+            catch (UnauthorizedAccessException e)
             {
                 // Have your code handle insufficient permissions here
-                return JsonSerializer.SerializeToString(new DriveData()
-                {
-                    Error = "Access to drives not allowed."
-                });
+                return null;
             }
+
+            
 
         }
     }

@@ -76,7 +76,7 @@ namespace DiskSpace
                 var request = new NotificationRequest()
                 {
                     Date = DateTime.Now,
-                    Description = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - {FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}",
+                    Description = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - {FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}, threshold {config.Threshold} Gb",
                     Level = NotificationLevel.Warning,
                     Name = "Disk space almost full",
                     NotificationType = "DiskSpaceAlmostFull",
