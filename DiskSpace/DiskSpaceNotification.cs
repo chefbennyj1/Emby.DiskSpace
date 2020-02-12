@@ -12,10 +12,10 @@ namespace DiskSpace
             {
                 new NotificationTypeInfo
                 {
-                    Type = "DiskSpaceAlmostFull",
-                    Name = "Disk Space Almost Full",
-                    Category = "Disk Space",
-                    Enabled = true,
+                    Type               = "DiskSpaceAlmostFull",
+                    Name               = "Disk Space Almost Full",
+                    Category           = "Disk Space",
+                    Enabled            = true,
                     IsBasedOnUserEvent = false
                 }
             };

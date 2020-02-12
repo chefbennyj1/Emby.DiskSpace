@@ -16,17 +16,18 @@ namespace DiskSpace
 {
     public class DiskSpaceScheduledTask : IScheduledTask, IConfigurableScheduledTask
     {
-        private IActivityManager ActivityManager { get; set; }
+        private IActivityManager ActivityManager         { get; set; }
         private INotificationManager NotificationManager { get; set; }
         private INotificationService NotificationService { get; set; }
-        private IFileSystem FileSystem { get; set; }
-        private IUserManager UserManager { get; set; }
+        private IFileSystem FileSystem                   { get; set; }
+        private IUserManager UserManager                 { get; set; }
+
         public DiskSpaceScheduledTask(INotificationManager nM, IFileSystem fS, IUserManager uM, IActivityManager aM)
         {
             NotificationManager = nM;
-            FileSystem = fS;
-            UserManager = uM;
-            ActivityManager = aM;
+            FileSystem          = fS;
+            UserManager         = uM;
+            ActivityManager     = aM;
             
         }
         public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
@@ -53,7 +54,7 @@ namespace DiskSpace
 
                 progress.Report(step - 1);
 
-                var config = Plugin.Instance.Configuration;
+                var config       = Plugin.Instance.Configuration;
                 var friendlyName = driveInfo.Name.Replace(@":\", "").Replace("/", "");
 
                 if (config.IgnoredPartitions != null)
@@ -79,14 +80,14 @@ namespace DiskSpace
 
                 var request = new NotificationRequest()
                 {
-                    Date = DateTime.Now,
-                    Description = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - {FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}, threshold {config.Threshold} Gb",
-                    Level = NotificationLevel.Warning,
-                    Name = "Disk space almost full",
+                    Date             = DateTime.Now,
+                    Description      = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - {FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}, threshold {config.Threshold} Gb",
+                    Level            = NotificationLevel.Warning,
+                    Name             = "Disk space almost full",
                     NotificationType = "DiskSpaceAlmostFull",
-                    SendToUserMode = SendToUserType.Admins,
-                    Url = "",
-                    UserIds = UserManager.Users.Where(i => i.Policy.IsAdministrator).Select(i => i.InternalId).ToArray()
+                    SendToUserMode   = SendToUserType.Admins,
+                    Url              = "",
+                    UserIds          = UserManager.Users.Where(i => i.Policy.IsAdministrator).Select(i => i.InternalId).ToArray()
                 };
                 
                 await NotificationManager.SendNotification(request, CancellationToken.None);
@@ -103,23 +104,23 @@ namespace DiskSpace
                 
                 new TaskTriggerInfo
                 {
-                    Type = TaskTriggerInfo.TriggerInterval,
+                    Type          = TaskTriggerInfo.TriggerInterval,
                     IntervalTicks = TimeSpan.FromHours(1).Ticks
                 },
                 new TaskTriggerInfo()
                 {
                     SystemEvent = SystemEvent.WakeFromSleep,
-                    Type = TaskTriggerInfo.TriggerSystemEvent
+                    Type        = TaskTriggerInfo.TriggerSystemEvent
                 }
             };
         }
 
-        public string Name => "Disk Space Almost Full Notification";
-        public string Key => "Disk Space";
+        public string Name        => "Disk Space Almost Full Notification";
+        public string Key         => "Disk Space";
         public string Description => "Notify Admin Accounts about full disk partitions.";
-        public string Category => "Disk Space";
-        public bool IsHidden => false;
-        public bool IsEnabled => true;
-        public bool IsLogged => true;
+        public string Category    => "Disk Space";
+        public bool IsHidden      => false;
+        public bool IsEnabled     => true;
+        public bool IsLogged      => true;
     }
 }
