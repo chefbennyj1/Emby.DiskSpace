@@ -40,6 +40,7 @@ namespace DiskSpace.Api
         private IFileSystem FileSystem         { get; set; }
         private ILibraryManager LibraryManager { get; set; }
         private readonly ILogger logger;
+
         public DiskSpaceService(IJsonSerializer json, IFileSystem fS, ILogManager logManager, ILibraryManager libMan)
         {
             JsonSerializer = json;
