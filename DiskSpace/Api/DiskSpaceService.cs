@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DiskSpace.Configuration;
 using DiskSpace.Helpers;
-using MediaBrowser.Controller.Data;
-using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.Persistence;
-using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Serialization;
@@ -27,29 +22,29 @@ namespace DiskSpace.Api
         [Route("/GetDriveData", "GET", Summary = "Get Drive Data")]
         public class DriveData : IReturn<string>
         {
-            public string DriveName { get; set; }
-            public string VolumeLabel { get; set; }
-            public long TotalSize { get; set; }
-            public long UsedSpace { get; set; }
-            public long FreeSpace { get; set; }
-            public string Format { get; set; }
-            public string FriendlyName { get; set; }
-            public string FriendlyUsed { get; set; }
-            public string FriendlyTotal { get; set; }
+            public string DriveName         { get; set; }
+            public string VolumeLabel       { get; set; }
+            public long TotalSize           { get; set; }
+            public long UsedSpace           { get; set; }
+            public long FreeSpace           { get; set; }
+            public string Format            { get; set; }
+            public string FriendlyName      { get; set; }
+            public string FriendlyUsed      { get; set; }
+            public string FriendlyTotal     { get; set; }
             public string FriendlyAvailable { get; set; }
-            public bool IsMonitored { get; set; }
-            public string Error { get; set; }
+            public bool IsMonitored         { get; set; }
+            public string Error             { get; set; }
         }
         
         private IJsonSerializer JsonSerializer { get; set; }
-        private IFileSystem FileSystem { get; set; }
+        private IFileSystem FileSystem         { get; set; }
         private ILibraryManager LibraryManager { get; set; }
         private readonly ILogger logger;
         public DiskSpaceService(IJsonSerializer json, IFileSystem fS, ILogManager logManager, ILibraryManager libMan)
         {
             JsonSerializer = json;
-            FileSystem = fS;
-            logger = logManager.GetLogger(GetType().Name);
+            FileSystem     = fS;
+            logger         = logManager.GetLogger(GetType().Name);
             LibraryManager = libMan;
         }
 
@@ -114,8 +109,7 @@ namespace DiskSpace.Api
 
                     try
                     {
-                        switch (fileSystemMetadata.Name.Split('/')[1]
-                        ) //Ignore these mount types in Linux that get returned from the Emby API
+                        switch (fileSystemMetadata.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
                         {
                             case "etc":
                             case "dev":
