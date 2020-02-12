@@ -66,9 +66,13 @@ namespace DiskSpace
                 var freeSpace = Math.Round(driveInfo.AvailableFreeSpace / 1000000000.0);
                 
                 var threshold = 10.0;
-                if (config.Threshold != null)
+                if (config.MonitoredPartitions != null)
                 {
-                    threshold = Convert.ToDouble(config.Threshold);
+                    if (config.MonitoredPartitions.Exists(m => m.Name == friendlyName))
+                    {
+                        threshold = Convert.ToDouble(config.MonitoredPartitions.Where(m => m.Name == friendlyName)
+                            .Select(m => m.Threshold));
+                    }
                 }
 
                 if (freeSpace > threshold) continue;

@@ -2,7 +2,90 @@
     function(require, loading, dialogHelper) {
         var pluginId = "9ECAAC5F-435E-4C21-B1C0-D99423B68984";
 
-        function openDialog(view) {
+        function openPartitionDialog(partitionName) {
+            loading.show();
+            var dlg = dialogHelper.createDialog({
+                size: "medium-tall",
+                removeOnClose: false,
+                scrollY: !0
+            });
+
+            dlg.classList.add("formDialog");
+            dlg.classList.add("ui-body-a");
+            dlg.classList.add("background-theme-a");
+            dlg.classList.add("colorChooser");
+            dlg.style = "max-width:25%; max-height:42em";
+
+            var html = '';
+            html += '<div class="formDialogHeader" style="display:flex">';
+            html +=
+                '<button is="paper-icon-button-light" class="btnCloseDialog autoSize paper-icon-button-light" tabindex="-1"><i class="md-icon"></i></button><h3 id="headerContent" class="formDialogHeaderTitle">Color</h3>';
+            html += '</div>';
+
+            html += '<div class="formDialogContent scrollY" style="padding:2em; max-height:33em;">';
+            html += '<form class="dialogContentInner dialogContentInner-mini ">';
+
+            html += '<h1 id="partitionName">Notification Threshold for ' + partitionName + ' partition</h1>';
+
+            html += '<div class="inputContainer">';
+            html +=  '<label class="inputLabel inputLabelUnfocused" for="notificationAlertThreshold">Notification threshold (Gigabytes)</label>';
+            html +=  '<input type="number" step="1" min="1" name="notificationAlertThreshold" id="notificationAlertThreshold" class="emby-input"> ';
+            html +=  '<div class="fieldDescription">Threshold when using Embys built-in notification system, to alert an admin when disk partitions are almost full. Default is 10 gigabytes</div>';
+            html += '</div>';
+
+            html +=
+                '<button id="okButton" is="emby-button" class="raised button-submit block emby-button">Ok</button>';
+            
+            html += '</form>';
+            html += '</div>';
+
+            dlg.innerHTML = html;
+
+            ApiClient.getPluginConfiguration(pluginId).then((config) => {
+                if (config.MonitoredPartitions) {
+                    (config.MonitoredPartitions.filter((entry) => entry.Name === partitionName).length == 0)
+                        ? dlg.querySelector('#notificationAlertThreshold').value = 10
+                        : config.MonitoredPartitions.filter((entry) => entry.Name == partitionName
+                            ? dlg.querySelector('#notificationAlertThreshold').value = entry.Threshold
+                            : 10);
+                }
+            });
+
+            dlg.querySelector('#notificationAlertThreshold').addEventListener('change',
+                () => {
+                    ApiClient.getPluginConfiguration(pluginId).then((config) => {
+                        var thresholdEntry = {
+                            Name: partitionName,
+                            Threshold: dlg.querySelector('#notificationAlertThreshold').value
+                        }
+                        if (config.MonitoredPartitions) {
+                            var filteredList = config.MonitoredPartitions.filter((entry) => entry.Name === partitionName);
+                            filteredList.push(thresholdEntry);
+                            config.MonitoredPartitions = filteredList;
+                        } else {
+                            config.MonitoredPartitions = [thresholdEntry ]
+                        } 
+                        ApiClient.updatePluginConfiguration(pluginId, config).then(() => { }); 
+                    });
+                });
+
+            dlg.querySelector('#okButton').addEventListener('click',
+                (event) => {
+                    event.preventDefault();
+                    dialogHelper.close(dlg);
+                });
+
+            dlg.querySelector('.btnCloseDialog').addEventListener('click',
+                () => {
+                    dialogHelper.close(dlg);
+                });
+
+            loading.hide();
+            dialogHelper.open(dlg);
+
+        }
+
+        function openSettingsDialog(view) {
 
             loading.show();
             ApiClient.getJSON(ApiClient.getUrl("GetDriveData")).then((driveData) => {
@@ -82,15 +165,18 @@
                 }
 
                 html += '</div>';
-                 
+
+                /*
                 html += '<div class="inputContainer">';
                 html +=
                     '<label class="inputLabel inputLabelUnfocused" for="notificationAlertThreshold">Notification threshold (Gigabytes)</label>';
+                
                 html +=
                     '<input type="number" step="1" min="1" name="notificationAlertThreshold" id="notificationAlertThreshold" class="emby-input"> ';
                 html +=
                     '<div class="fieldDescription">Threshold when using Embys built-in notification system, to alert an admin when disk partitions are almost full. Default is 10 gigabytes</div>';
                 html += '</div>';
+                */
 
                 html +=
                     '<button id="okButton" is="emby-button" class="raised button-submit block emby-button">Ok</button>';
@@ -120,12 +206,13 @@
                     dlg.querySelector('#usedSpaceFillColor').value             = config.UsedColor;
                     dlg.querySelector('#usedSpaceOutlineColor').value          = config.UsedOutline;
 
+                    /*
                     if (!config.Threshold) { //default is 10
                         config.Threshold = 10;
                     }
-
+                   
                     dlg.querySelector('#notificationAlertThreshold').value = config.Threshold;
-
+                    */
 
                     driveData.forEach((drive) => {
                         if (config.IgnoredPartitions) {
@@ -143,11 +230,10 @@
                         }
                     });
 
-                    ApiClient.updatePluginConfiguration(pluginId, config).then(() => {
-
-                    });
+                    ApiClient.updatePluginConfiguration(pluginId, config).then(() => { });
                 });
 
+                /*
                 dlg.querySelector('#notificationAlertThreshold').addEventListener('change',
                     () => {
                         ApiClient.getPluginConfiguration(pluginId).then((config) => {
@@ -155,7 +241,7 @@
                             ApiClient.updatePluginConfiguration(pluginId, config).then(() => { });
                         });
                     });
-
+                */
                 dlg.querySelector('#availableSpaceFillColor').addEventListener('change',
                     () => {
                         dlg.querySelector('#availableSpaceFillColorText').value =
@@ -264,6 +350,13 @@
                                         : !e.target.checked
                                             ? config.IgnoredPartitions = [e.target.id]
                                             : config.IgnoredPartitions.push(e.target.id); //<-- we'll never get here
+
+                                    //Remove any saved monitored partitionThresholds
+                                    if (config.MonitoredPartitions) {
+                                        if (config.MonitoredPartitions.filter((entry) => entry.Name === partitionName).length == 0)
+                                            config.MonitoredPartitions.filter((entry) => entry.Name === partitionName) 
+                                    } 
+
                                     ApiClient.updatePluginConfiguration(pluginId, config).then((r) => {
 
                                         loading.hide();
@@ -325,6 +418,8 @@
                 html += '<td data-title="Notifications Enabled" class="detailTableBodyCell fileCell-shaded">' + drive.IsMonitored + '</td>';
                 var total = drive.UsedSpace + drive.FreeSpace;
                 html += '<td data-title="Disk Space" class="detailTableBodyCell fileCell">' + Math.round((drive.FreeSpace / total) * 100) + '%</td>';
+                html += '<td class="detailTableBodyCell fileCell">';
+                html += '<button id="' + drive.FriendlyName + '" class="partitionOptions fab raised button-alt headerHelpButton emby-button"><i class="md-icon">more_horiz</i></button></td>';
                 html += '<td class="detailTableBodyCell" style="whitespace:no-wrap;"></td>';
                 html += '</tr>';
             });
@@ -350,11 +445,11 @@
 
                 if (!driveData[i].IsMonitored) continue;
 
-                html += '<div class="cardBox visualCardBox" style="padding:1em; max-width:300px">';
+                html += '<div id="' + driveData[i].FriendlyName + '" class="cardBox visualCardBox" style="padding:1em; max-width:300px">';
                 html += '<div class="cardScalable" style="padding:0.6em">';
                 html += '<h2 class="sectionTitle">' + parsePartitionNameSubString(driveData[i].DriveName) + '</h2>';
                 html += '<div class="chart-container" style="position: relative;">';
-                html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="275" height="275"></canvas>';
+                html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="275" height="275" style="min-width:275px"></canvas>';
                 html += '</div>';
                 html += '<p>' + driveData[i].VolumeLabel + " " + driveData[i].FriendlyUsed + "\\" + driveData[i].FriendlyTotal + '</p>';
                 html += '</div>';
@@ -370,41 +465,39 @@
 
                 var myChart = new Chart(ctx,
                     {
-                        type: 'doughnut',
+                        type : 'doughnut',
                         label: driveData[t].DriveName,
-                        data: {
-                            labels: ['Used', 'Available'],
+                        data : {
+                            labels  : [ 'Used', 'Available' ],
                             datasets: [
                                 {
-                                    data: [driveData[t].UsedSpace, driveData[t].FreeSpace],
-                                    backgroundColor: [usedSpaceColor, availableSpaceColor],
-                                    borderColor: [usedSpaceOutline, availableSpaceOutline],
-                                    borderWidth: 1,
-                                    dataFriendly: [driveData[t].FriendlyUsed, driveData[t].FriendlyAvailable]
+                                    data           : [ driveData[t].UsedSpace, driveData[t].FreeSpace ],
+                                    backgroundColor: [ usedSpaceColor, availableSpaceColor ],
+                                    borderColor    : [ usedSpaceOutline, availableSpaceOutline ],
+                                    borderWidth    : 1,
+                                    dataFriendly   : [ driveData[t].FriendlyUsed, driveData[t].FriendlyAvailable ]
                                 }
                             ]
                         },
                         options: {
+
                             "cutoutPercentage": 40,
 
                             tooltips: {
                                 callbacks: {
-                                    title: function (tooltipItem, data) {
-                                        return data['labels'][tooltipItem[0]['index']];
-                                    },
-                                    label: function (tooltipItem, data) {
-                                        return data['datasets'][0]['dataFriendly'][tooltipItem['index']];
-                                    },
-                                    afterLabel: function (tooltipItem, data) {
+                                    title     : (tooltipItem, data) => { return data['labels'][tooltipItem[0]['index']]; },
+                                    label     : (tooltipItem, data) => { return data['datasets'][0]['dataFriendly'][tooltipItem['index']]; },
+                                    afterLabel: (tooltipItem, data) => {
+
                                         var dataset = data['datasets'][0];
-                                        var total = dataset['data'][0] + dataset['data'][1];
+                                        var total   = dataset['data'][0] + dataset['data'][1];
                                         var percent = Math.round((dataset['data'][tooltipItem['index']] / total) * 100);
+
                                         return '(' + percent + '%)';
+
                                     }
 
-                                },
-                                // Disable the on-canvas tooltip
-                                //enabled: false 
+                                }
                             }
                         }
                     });
@@ -415,21 +508,21 @@
            
             ApiClient.getPluginConfiguration(pluginId).then((config) => {
 
-                var chartResultContainer = view.querySelector('.diskSpaceChartResultBody');
-                var tableContainer = view.querySelector('.tblPartitionResults');
+                var chartRenderContainer = view.querySelector('.diskSpaceChartResultBody');
+                var tableContainer       = view.querySelector('.tblPartitionResults');
 
-                chartResultContainer.innerHTML = '';
+                chartRenderContainer.innerHTML = '';
 
                 ApiClient.getJSON(ApiClient.getUrl("GetDriveData")).then((driveData) => {
 
                     var html = '';
                     if (driveData.Error) {
                         html += '<h1>' + driveData.Error + '</h1>';
-                        chartResultContainer.innerHTML = html;
+                        chartRenderContainer.innerHTML = html;
                         return;
                     }
 
-                    renderDiskSpaceResultChartHtml(driveData, config, chartResultContainer, Chart);
+                    renderDiskSpaceResultChartHtml(driveData, config, chartRenderContainer, Chart);
 
                     view.querySelector('.diskSpaceTableResultBody').innerHTML =
                         getDiskSpaceResultTableHtml(driveData);
@@ -437,32 +530,43 @@
                     if (config.DataDisplayRender) {
                         if (config.DataDisplayRender === "chart") {
 
-                            if (chartResultContainer.classList.contains('hide'))
-                                chartResultContainer.classList.remove('hide');
+                            if (chartRenderContainer.classList.contains('hide'))
+                                chartRenderContainer.classList.remove('hide');
 
                             if (!tableContainer.classList.contains('hide'))
                                 tableContainer.classList.add('hide');
 
                         } else {
 
-                            if (!chartResultContainer.classList.contains('hide'))
-                                chartResultContainer.classList.add('hide');
+                            if (!chartRenderContainer.classList.contains('hide'))
+                                chartRenderContainer.classList.add('hide');
 
                             if (tableContainer.classList.contains('hide'))
                                 tableContainer.classList.remove('hide');
 
                             view.querySelector('#toggleButton i').innerHTML = 'data_usage';
                         }
-                    }
-                    
-                   
+
+                    } 
+                     
+                    view.querySelectorAll('.visualCardBox').forEach((button) => {
+                        button.addEventListener('click', (e) => {
+                            openPartitionDialog(e.target.closest('.visualCardBox').id);
+                        })
+                    })
+
+                    view.querySelectorAll('.partitionOptions').forEach((button) => {
+                        button.addEventListener('click', (e) => {
+                            openPartitionDialog(e.target.closest('.partitionOptions').id);
+                        })
+                    })
                 });
 
             });
 
         }
 
-        return function (view) {
+        return function(view) {
             
             view.addEventListener('viewshow',
                 () => {
@@ -473,6 +577,7 @@
 
                     var chartContainer = view.querySelector('.diskSpaceChartResultBody');
                     var tableContainer = view.querySelector('.tblPartitionResults');
+
                     require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
                         (chart) => {
 
@@ -480,11 +585,11 @@
 
                                 view.querySelector('#settingsButton').addEventListener('click',
                                     () => {
-                                        openDialog(view);
+                                        openSettingsDialog(view);
                                     });
-                            
-                            
+
                         });
+
                     //format_list_bulleted
                     //data_usage
                     view.querySelector('#toggleButton').addEventListener('click',
@@ -552,6 +657,8 @@
                                 
                             }); 
                         });
+
+                   
                 });
         }
     });
