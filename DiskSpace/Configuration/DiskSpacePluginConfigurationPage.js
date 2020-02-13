@@ -19,13 +19,13 @@
             var html = '';
             html += '<div class="formDialogHeader" style="display:flex">';
             html +=
-                '<button is="paper-icon-button-light" class="btnCloseDialog autoSize paper-icon-button-light" tabindex="-1"><i class="md-icon"></i></button><h3 id="headerContent" class="formDialogHeaderTitle">Color</h3>';
+                '<button is="paper-icon-button-light" class="btnCloseDialog autoSize paper-icon-button-light" tabindex="-1"><i class="md-icon"></i></button><h3 id="headerContent" class="formDialogHeaderTitle">' + partitionName + '</h3>';
             html += '</div>';
 
             html += '<div class="formDialogContent scrollY" style="padding:2em; max-height:33em;">';
             html += '<form class="dialogContentInner dialogContentInner-mini ">';
 
-            html += '<h1 id="partitionName">Notification Threshold for ' + partitionName + ' partition</h1>';
+            html += '<h1 id="partitionName">Notification Threshold</h1>';
 
             html += '<div class="inputContainer">';
             html +=  '<label class="inputLabel inputLabelUnfocused" for="notificationAlertThreshold">Notification threshold (Gigabytes)</label>';
@@ -43,14 +43,19 @@
 
             ApiClient.getPluginConfiguration(pluginId).then((config) => {
                 if (config.MonitoredPartitions) {
-                    (config.MonitoredPartitions.filter((entry) => entry.Name === partitionName).length == 0)
-                        ? dlg.querySelector('#notificationAlertThreshold').value = 10
-                        : config.MonitoredPartitions.filter((entry) => entry.Name == partitionName
-                            ? dlg.querySelector('#notificationAlertThreshold').value = entry.Threshold
-                            : 10);
+                    if (config.MonitoredPartitions.filter((entry) => entry.Name === partitionName).length == 0) {
+                        dlg.querySelector('#notificationAlertThreshold').value = 10
+                    } else {
+                        config.MonitoredPartitions.forEach((entry) => {
+                            if (entry.Name == partitionName) {
+                                dlg.querySelector('#notificationAlertThreshold').value = entry.Threshold
+                            }
+                        });
+                    }
                 }
             });
 
+            /*
             dlg.querySelector('#notificationAlertThreshold').addEventListener('change',
                 () => {
                     ApiClient.getPluginConfiguration(pluginId).then((config) => {
@@ -63,15 +68,28 @@
                             filteredList.push(thresholdEntry);
                             config.MonitoredPartitions = filteredList;
                         } else {
-                            config.MonitoredPartitions = [thresholdEntry ]
+                            config.MonitoredPartitions = [ thresholdEntry ]
                         } 
                         ApiClient.updatePluginConfiguration(pluginId, config).then(() => { }); 
                     });
                 });
-
+             */
             dlg.querySelector('#okButton').addEventListener('click',
                 (event) => {
                     event.preventDefault();
+                    ApiClient.getPluginConfiguration(pluginId).then((config) => {
+                        var thresholdEntry = {
+                            Name: partitionName,
+                            Threshold: dlg.querySelector('#notificationAlertThreshold').value
+                        }
+                        if (config.MonitoredPartitions) {
+                            config.MonitoredPartitions = config.MonitoredPartitions.filter((entry) => entry.Name !== partitionName);
+                            config.MonitoredPartitions.push(thresholdEntry); 
+                        } else {
+                            config.MonitoredPartitions = [thresholdEntry]
+                        }
+                        ApiClient.updatePluginConfiguration(pluginId, config).then(() => { });
+                    });
                     dialogHelper.close(dlg);
                 });
 
@@ -353,8 +371,8 @@
 
                                     //Remove any saved monitored partitionThresholds
                                     if (config.MonitoredPartitions) {
-                                        if (config.MonitoredPartitions.filter((entry) => entry.Name === partitionName).length == 0)
-                                            config.MonitoredPartitions.filter((entry) => entry.Name === partitionName) 
+                                        if (config.MonitoredPartitions.filter((entry) => entry.Name === e.target.id).length == 0)
+                                            config.MonitoredPartitions = config.MonitoredPartitions.filter((entry) => entry.Name !== e.target.id) 
                                     } 
 
                                     ApiClient.updatePluginConfiguration(pluginId, config).then((r) => {

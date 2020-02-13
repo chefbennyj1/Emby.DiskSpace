@@ -71,8 +71,7 @@ namespace DiskSpace
                 {
                     if (config.MonitoredPartitions.Exists(m => m.Name == friendlyName))
                     {
-                        threshold = Convert.ToDouble(config.MonitoredPartitions.Where(m => m.Name == friendlyName)
-                            .Select(m => m.Threshold));
+                        threshold = Convert.ToDouble(config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName).Threshold);
                     }
                 }
 
