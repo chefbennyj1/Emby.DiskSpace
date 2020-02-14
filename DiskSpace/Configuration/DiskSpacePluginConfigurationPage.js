@@ -2,7 +2,7 @@
     function(require, loading, dialogHelper) {
         var pluginId = "9ECAAC5F-435E-4C21-B1C0-D99423B68984";
 
-        function openPartitionDialog(partitionName) {
+        function openPartitionDialog(partitionName, view) {
             loading.show();
             var dlg = dialogHelper.createDialog({
                 size: "medium-tall",
@@ -88,9 +88,14 @@
                         } else {
                             config.MonitoredPartitions = [thresholdEntry]
                         }
-                        ApiClient.updatePluginConfiguration(pluginId, config).then(() => { });
-                    });
-                    dialogHelper.close(dlg);
+                        ApiClient.updatePluginConfiguration(pluginId, config).then(() => {
+                            require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
+                                (chart) => {
+                                    renderChartAndTableData(view, chart);
+                                    dialogHelper.close(dlg);
+                                });
+                        });
+                    });   
                 });
 
             dlg.querySelector('.btnCloseDialog').addEventListener('click',
@@ -425,29 +430,44 @@
          
         function getDiskSpaceResultTableHtml(driveData) {
             var html = '';
+
             driveData.forEach(drive => {
+
                 if (!drive.IsMonitored) return;
+
+                var total          = drive.UsedSpace + drive.FreeSpace;
+                var thresholdColor = getThresholdExceededColor(drive.Threshold, drive.FreeSpace, total);
+
                 html += '<tr class="detailTableBodyRow detailTableBodyRow-shaded" id="' + drive.FriendlyName + '">';
-                html += '<td data-title="Name" class="detailTableBodyCell fileCell">' + parsePartitionNameSubString(drive.DriveName) + '</td>';
-                html += '<td data-title="Name" class="detailTableBodyCell fileCell-shaded">' + drive.VolumeLabel + '</td>';
-                html += '<td data-title="Total Size" class="detailTableBodyCell fileCell">' + drive.FriendlyTotal + '</td>';
-                html += '<td data-title="Used" class="detailTableBodyCell fileCell-shaded">' + drive.FriendlyUsed + '</td>';
-                html += '<td data-title="Available" class="detailTableBodyCell fileCell">' + drive.FriendlyAvailable + '</td>';
-                html += '<td data-title="Notifications Enabled" class="detailTableBodyCell fileCell-shaded">' + drive.IsMonitored + '</td>';
-                var total = drive.UsedSpace + drive.FreeSpace;
-                html += '<td data-title="Disk Space" class="detailTableBodyCell fileCell">' + Math.round((drive.FreeSpace / total) * 100) + '%</td>';
+
+                html += '<td data-title="Name" class="detailTableBodyCell fileCell"'                         + thresholdColor + '>' + parsePartitionNameSubString(drive.DriveName) + '</td>';
+                html += '<td data-title="Name" class="detailTableBodyCell fileCell-shaded"'                  + thresholdColor + '>' + drive.VolumeLabel + '</td>';
+                html += '<td data-title="Total Size" class="detailTableBodyCell fileCell"'                   + thresholdColor + '>' + drive.FriendlyTotal + '</td>';
+                html += '<td data-title="Used" class="detailTableBodyCell fileCell-shaded"'                  + thresholdColor + '>' + drive.FriendlyUsed + '</td>';
+                html += '<td data-title="Available" class="detailTableBodyCell fileCell"'                    + thresholdColor + '>' + drive.FriendlyAvailable + '</td>';
+                html += '<td data-title="Notifications Enabled" class="detailTableBodyCell fileCell-shaded"' + thresholdColor + '>' + drive.NotificationEnabled + '</td>';
+                html += '<td data-title="Notification Threshold" class="detailTableBodyCell fileCell"'       + thresholdColor + '>' + drive.Threshold + 'GB</td>';
+                html += '<td data-title="Disk Space" class="detailTableBodyCell fileCell"'                   + thresholdColor + '>' + Math.round((drive.FreeSpace / total) * 100) + '%</td>';
+
                 html += '<td class="detailTableBodyCell fileCell">';
-                html += '<button id="' + drive.FriendlyName + '" class="partitionOptions fab raised button-alt headerHelpButton emby-button"><i class="md-icon">more_horiz</i></button></td>';
+
+                html += '<div id="' + drive.FriendlyName + '" class="partitionOptions emby-button"><i class="md-icon">more_horiz</i></div></td>';
                 html += '<td class="detailTableBodyCell" style="whitespace:no-wrap;"></td>';
                 html += '</tr>';
+
             });
+
             return html;
+
+
+        }
+
+        function getThresholdExceededColor(threshold, freespace, total) {
+            return ((freespace / 1000000000.0) > ((total / 1000000000.0) - threshold)) ? ' style="color:orangered"' : '';
         }
 
         function parsePartitionNameSubString(driveName) {
-             
             return driveName.split('/').length > 3 ? driveName.split('/')[driveName.split('/').length - 1] : driveName;
-        
         }
 
         function renderDiskSpaceResultChartHtml(driveData, config, chartResultContainer, Chart) {
@@ -463,13 +483,14 @@
 
                 if (!driveData[i].IsMonitored) continue;
 
-                html += '<div id="' + driveData[i].FriendlyName + '" class="cardBox visualCardBox" style="padding:1em; max-width:300px">';
+                html += '<div id="' + driveData[i].FriendlyName + '" class="cardBox visualCardBox diskCardBox" style="padding:1em; max-width:300px">';
                 html += '<div class="cardScalable" style="padding:0.6em">';
                 html += '<h2 class="sectionTitle">' + parsePartitionNameSubString(driveData[i].DriveName) + '</h2>';
                 html += '<div class="chart-container" style="position: relative;">';
                 html += '<canvas id="drive' + driveData[i].FriendlyName + '" width="275" height="275" style="min-width:275px"></canvas>';
                 html += '</div>';
                 html += '<p>' + driveData[i].VolumeLabel + " " + driveData[i].FriendlyUsed + "\\" + driveData[i].FriendlyTotal + '</p>';
+                html += driveData[i].NotificationEnabled ? '<p>Notification Enabled: ' + driveData[i].Threshold + 'GB threshold</p>' : '';
                 html += '</div>';
                 html += '</div>';
 
@@ -520,6 +541,7 @@
                         }
                     });
             }
+            
         }
 
         function renderChartAndTableData(view, Chart) {
@@ -565,19 +587,35 @@
                             view.querySelector('#toggleButton i').innerHTML = 'data_usage';
                         }
 
-                    } 
-                     
+                    }
+
                     view.querySelectorAll('.visualCardBox').forEach((button) => {
-                        button.addEventListener('click', (e) => {
-                            openPartitionDialog(e.target.closest('.visualCardBox').id);
-                        })
-                    })
+                        button.addEventListener('click',
+                            (e) => {
+                                openPartitionDialog(e.target.closest('.visualCardBox').id, view);
+                            });
+                    });
 
                     view.querySelectorAll('.partitionOptions').forEach((button) => {
-                        button.addEventListener('click', (e) => {
-                            openPartitionDialog(e.target.closest('.partitionOptions').id);
-                        })
-                    })
+                        button.addEventListener('click',
+                            (e) => {
+                                openPartitionDialog(e.target.closest('.partitionOptions').id, view);
+                            });
+                    });
+
+                    /*
+                    view.querySelectorAll('.diskCardBox').forEach((card) => {
+                        card.addEventListener('mouseenter',
+                            (e) => {
+                                e.target.lastElementChild.style = "opacity:1";
+                            });
+                        card.addEventListener('mouseleave',
+                            (e) => {
+                                e.target.lastElementChild.style = "opacity:0";
+                            });
+
+                    });
+                    */
                 });
 
             });

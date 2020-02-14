@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DiskSpace.Helpers;
 using MediaBrowser.Controller.Library;
+using MediaBrowser.Controller.Notifications;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Serialization;
@@ -33,20 +34,25 @@ namespace DiskSpace.Api
             public string FriendlyTotal     { get; set; }
             public string FriendlyAvailable { get; set; }
             public bool IsMonitored         { get; set; }
+            public bool NotificationEnabled { get; set; }            
+            public string Threshold         { get; set; }
             public string Error             { get; set; }
         }
         
-        private IJsonSerializer JsonSerializer { get; set; }
-        private IFileSystem FileSystem         { get; set; }
-        private ILibraryManager LibraryManager { get; set; }
+        private IJsonSerializer JsonSerializer           { get; set; }
+        private IFileSystem FileSystem                   { get; set; }
+        private ILibraryManager LibraryManager           { get; set; }
+        private INotificationManager NotificationManager { get; set; }
         private readonly ILogger logger;
 
-        public DiskSpaceService(IJsonSerializer json, IFileSystem fS, ILogManager logManager, ILibraryManager libMan)
+        public DiskSpaceService(IJsonSerializer json, IFileSystem fS, ILogManager logManager, ILibraryManager libMan, INotificationManager noteMan)
         {
-            JsonSerializer = json;
-            FileSystem     = fS;
-            logger         = logManager.GetLogger(GetType().Name);
-            LibraryManager = libMan;
+            JsonSerializer      = json;
+            FileSystem          = fS;
+            logger              = logManager.GetLogger(GetType().Name);
+            LibraryManager      = libMan;
+            NotificationManager = noteMan;
+
         }
 
         public string Get(TotalStorage request)
@@ -120,40 +126,37 @@ namespace DiskSpace.Api
                             case "proc": continue;
                         }
                     }
-                    catch
-                    {
-                    }
+                    catch { }
 
                     var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
                     if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
 
+                    // ReSharper disable ComplexConditionExpression
+                    // ReSharper disable TooManyChainedReferences
                     var config = Plugin.Instance.Configuration;
+
                     Plugin.Instance.UpdateConfiguration(config);
+
                     var friendlyName = driveInfo.Name.Replace(@":\", "").Replace("/", "");
-
-                    var isMonitored = true;
-                    if (config.IgnoredPartitions != null)
-                    {
-                        if (config.IgnoredPartitions.Exists(d => d == friendlyName))
-                        {
-                            isMonitored = false;
-                        }
-                    }
-
+                    var isMonitored  = !config.IgnoredPartitions?.Exists(d => d == friendlyName) ?? true;
+                    var threshold    = config.MonitoredPartitions != null ? config.MonitoredPartitions.Exists(p => p.Name == friendlyName) ? config.MonitoredPartitions.FirstOrDefault(p => p.Name == friendlyName)?.Threshold : "10" : "10";
+                    
                     drives.Add(new DriveData()
                     {
-                        DriveName         = driveInfo.Name,
-                        VolumeLabel       = driveInfo.VolumeLabel,
-                        TotalSize         = driveInfo.TotalSize,
-                        UsedSpace         = driveInfo.TotalSize - driveInfo.TotalFreeSpace,
-                        FreeSpace         = driveInfo.TotalFreeSpace,
-                        Format            = driveInfo.DriveFormat,
-                        FriendlyName      = friendlyName,
-                        FriendlyTotal     = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
-                        FriendlyUsed      = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace)),
-                        FriendlyAvailable = FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace),
-                        IsMonitored       = isMonitored
+                        DriveName                                             = driveInfo.Name,
+                        VolumeLabel                                           = driveInfo.VolumeLabel,
+                        TotalSize                                             = driveInfo.TotalSize,
+                        UsedSpace                                             = driveInfo.TotalSize - driveInfo.TotalFreeSpace,
+                        FreeSpace                                             = driveInfo.TotalFreeSpace,
+                        Format                                                = driveInfo.DriveFormat,
+                        FriendlyName                                          = friendlyName,
+                        FriendlyTotal                                         = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
+                        FriendlyUsed                                          = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace)),
+                        FriendlyAvailable                                     = FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace),
+                        IsMonitored                                           = isMonitored,
+                        NotificationEnabled                                   = NotificationManager.GetNotificationTypes().FirstOrDefault(s => s.Type  == "DiskSpaceAlmostFull").Enabled,
+                        Threshold                                             = threshold
                     });
                 }
 
