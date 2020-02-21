@@ -64,14 +64,22 @@ namespace DiskSpace
 
                 if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
                 
-                var freeSpace = Math.Round(driveInfo.AvailableFreeSpace / 1000000000.0);
-                
-                var threshold = 10.0;
+                var freeSpace    = Math.Round(driveInfo.AvailableFreeSpace / 1073741824.0);
+
+                double threshold = Math.Round(driveInfo.TotalSize / 1073741824.0);
+
                 if (config.MonitoredPartitions != null)
                 {
                     if (config.MonitoredPartitions.Exists(m => m.Name == friendlyName))
                     {
-                        threshold = Convert.ToDouble(config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName).Threshold);
+                        if (config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName)?.Threshold != null)
+                        {
+                            threshold = Convert.ToDouble(config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName)?.Threshold + ".0");
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
                 }
 

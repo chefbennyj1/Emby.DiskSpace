@@ -19,5 +19,6 @@ namespace DiskSpace.Configuration
     {
         public string Name      { get; set; }
         public string Threshold { get; set; }
+        public string Alias { get; set; }
     }
 }

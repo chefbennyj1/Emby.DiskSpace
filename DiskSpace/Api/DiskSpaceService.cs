@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using DiskSpace.Helpers;
@@ -18,6 +19,7 @@ namespace DiskSpace.Api
         public class TotalStorage : IReturn<string>
         { 
             public string Total { get; set; }
+            public string Used { get; set; }
         }
 
         [Route("/GetDriveData", "GET", Summary = "Get Drive Data")]
@@ -36,6 +38,7 @@ namespace DiskSpace.Api
             public bool IsMonitored         { get; set; }
             public bool NotificationEnabled { get; set; }            
             public string Threshold         { get; set; }
+            public string Alias             { get; set; }
             public string Error             { get; set; }
         }
         
@@ -67,7 +70,8 @@ namespace DiskSpace.Api
             }
             return JsonSerializer.SerializeToString(new TotalStorage()
             {
-                Total = FileSizeConversions.SizeSuffix(data.Where(d => d.IsMonitored).Sum(partition => partition.TotalSize))
+                Total = FileSizeConversions.SizeSuffix(data.Where(d => d.IsMonitored).Sum(partition => partition.TotalSize)),
+                Used  = FileSizeConversions.SizeSuffix(data.Where(d => d.IsMonitored).Sum(partition => partition.UsedSpace))
             });
         }
 
@@ -140,8 +144,21 @@ namespace DiskSpace.Api
 
                     var friendlyName = driveInfo.Name.Replace(@":\", "").Replace("/", "");
                     var isMonitored  = !config.IgnoredPartitions?.Exists(d => d == friendlyName) ?? true;
-                    var threshold    = config.MonitoredPartitions != null ? config.MonitoredPartitions.Exists(p => p.Name == friendlyName) ? config.MonitoredPartitions.FirstOrDefault(p => p.Name == friendlyName)?.Threshold : "10" : "10";
-                    
+                    var threshold    = config.MonitoredPartitions != null ? config.MonitoredPartitions.Exists(p => p.Name == friendlyName) 
+                            ? config.MonitoredPartitions.FirstOrDefault(p => p.Name == friendlyName)?.Threshold : "" : "";
+                    var alias = friendlyName;
+                    if (config.MonitoredPartitions != null)
+                    {
+                        if (config.MonitoredPartitions.Exists(p => p.Name == friendlyName))
+                        {
+                            if ((config.MonitoredPartitions.FirstOrDefault(p => p.Name == friendlyName).Alias != null))
+                            {
+                                alias = config.MonitoredPartitions
+                                    .FirstOrDefault(p => p.Name == friendlyName)?.Alias;
+                            }
+                        }
+                    }
+
                     drives.Add(new DriveData()
                     {
                         DriveName                                             = driveInfo.Name,
@@ -151,12 +168,13 @@ namespace DiskSpace.Api
                         FreeSpace                                             = driveInfo.TotalFreeSpace,
                         Format                                                = driveInfo.DriveFormat,
                         FriendlyName                                          = friendlyName,
-                        FriendlyTotal                                         = FileSizeConversions.SizeSuffix(driveInfo.TotalSize),
+                        FriendlyTotal                                         = FileSizeConversions.SizeSuffix(driveInfo.TotalSize, 2),
                         FriendlyUsed                                          = FileSizeConversions.SizeSuffix((driveInfo.TotalSize - driveInfo.TotalFreeSpace)),
                         FriendlyAvailable                                     = FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace),
                         IsMonitored                                           = isMonitored,
                         NotificationEnabled                                   = NotificationManager.GetNotificationTypes().FirstOrDefault(s => s.Type  == "DiskSpaceAlmostFull").Enabled,
-                        Threshold                                             = threshold
+                        Threshold                                             = threshold,
+                        Alias                                                 = alias
                     });
                 }
 
