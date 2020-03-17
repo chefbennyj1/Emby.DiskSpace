@@ -92,9 +92,7 @@
             loading.hide();
             dialogHelper.open(dlg);
         }
-
-    
-
+         
         function openSettingsDialog(view) {
 
             loading.show();
@@ -426,6 +424,8 @@
                 var thresholdColor = getThresholdExceededColor(drive.Threshold, drive.FreeSpace);
 
                 html += '<tr class="detailTableBodyRow detailTableBodyRow-shaded" id="' + drive.FriendlyName + '">';
+                html += '<td data-title="Name" class="detailTableBodyCell fileCell"' + thresholdColor + '>';
+                html += '<svg style="height: 25px; width: 25px; margin: 0.6em 0.9em; fill:darkgray"><use xlink: href="#'   + getDriveIconSvgHtml(drive.Threshold, drive.FreeSpace) + '"></use></svg></td> ';
 
                 html += '<td data-title="Name" class="detailTableBodyCell fileCell"'                         + thresholdColor + '>' + drive.Alias + '</td>';
                 html += '<td data-title="Name" class="detailTableBodyCell fileCell-shaded"'                  + thresholdColor + '>' + drive.VolumeLabel + '</td>';
@@ -449,8 +449,17 @@
 
         }
 
+        
+        function getDriveIconSvgHtml(threshold, freespace) {
+            return threshold && threshold.length
+                ? (freespace / 1073741824.0) < threshold
+                ? 'driveFull'
+                : 'drive'
+                : 'drive';
+        }
+
         function getThresholdExceededColor(threshold, freespace) {
-            return threshold && threshold.length ? (freespace / 1073741824.0) <  threshold ? ' style="color:orangered"' : '' : '';
+            return threshold && threshold.length ? (freespace / 1073741824.0) <  threshold ? ' style="color:orangered;"' : '' : '';
         }
 
         
