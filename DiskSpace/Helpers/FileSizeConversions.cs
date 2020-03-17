@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+//https://stackoverflow.com/questions/14488796/does-net-provide-an-easy-way-convert-bytes-to-kb-mb-gb-etc/14489026
+
+using System;
 
 namespace DiskSpace.Helpers
 {
