@@ -401,10 +401,7 @@
             html += '<input id="' + driveData.FriendlyName + '" type="checkbox" is="emby-checkbox" class="chkDiskPartition emby-checkbox" data-embycheckbox="true">';
             html += '<span class="checkboxLabel">' + driveData.FriendlyName + '</span>';
             html += '<span class="emby-checkbox-focushelper"></span>';
-            html += '<span class="checkboxOutline">';
-            html += '<i class="md-icon checkboxIcon checkboxIcon-checked"></i>';
-            html += '<i class="md-icon checkboxIcon checkboxIcon-unchecked"></i>';
-            html += '</span>';
+           
             html += '</label>';
             html += '<div class="fieldDescription checkboxFieldDescription">';
             html += '</div>';
@@ -425,7 +422,7 @@
 
                 html += '<tr class="detailTableBodyRow detailTableBodyRow-shaded" id="' + drive.FriendlyName + '">';
                 html += '<td data-title="Name" class="detailTableBodyCell fileCell"' + thresholdColor + '>';
-                html += '<svg style="height: 25px; width: 25px; margin: 0.6em 0.9em; fill:darkgray"><use xlink: href="#'   + getDriveIconSvgHtml(drive.Threshold, drive.FreeSpace) + '"></use></svg></td> ';
+                html += '<svg style="height: 25px; width: 25px; margin: 0.6em 0.9em; fill:#4CAF50"><use xlink: href="#'   + getDriveIconSvgHtml(drive.Threshold, drive.FreeSpace) + '"></use></svg></td> ';
 
                 html += '<td data-title="Name" class="detailTableBodyCell fileCell"'                         + thresholdColor + '>' + drive.Alias + '</td>';
                 html += '<td data-title="Name" class="detailTableBodyCell fileCell-shaded"'                  + thresholdColor + '>' + drive.VolumeLabel + '</td>';
