@@ -431,18 +431,17 @@
             return html;
 
 
-        }
-
+        } 
         
         function getDriveIconSvgHtml(threshold, freespace) {
-            return threshold ? (freespace / 1073741824.0) < threshold
+            return threshold && threshold != 0 ? (freespace / 1073741824.0) < threshold
                 ? 'driveFull'
                 : 'drive'
                 : 'drive';
         }
 
         function getThresholdExceededColor(threshold, freespace) {
-            return threshold ? (freespace / 1073741824.0) <  threshold ? ' style="color:orangered;"' : '' : '';
+            return threshold && threshold != 0 ? (freespace / 1073741824.0) <  threshold ? ' style="color:orangered;"' : '' : '';
         }
 
         

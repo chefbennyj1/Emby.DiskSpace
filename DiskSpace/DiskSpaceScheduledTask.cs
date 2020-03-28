@@ -83,8 +83,8 @@ namespace DiskSpace
                     var request = new NotificationRequest()
                     {
                         Date = DateTime.Now,
-                        Description = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - " +
-                                           $"{FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}, threshold {FileSizeConversions.SizeSuffix(threshold)}",
+                        Description = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full. " +
+                                           $"{FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)} available space, threshold passed at {FileSizeConversions.SizeSuffix(threshold)}",
                         Level = NotificationLevel.Warning,
                         Name = "Disk space almost full",
                         NotificationType = "DiskSpaceAlmostFull",
@@ -100,8 +100,8 @@ namespace DiskSpace
                         Date = DateTimeOffset.Now,
                         Id = new Random().Next(1000, 9999),
                         Overview =
-                            $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - " +
-                            $"{FileSizeConversions.SizeSuffix(availableSpace)}, threshold {FileSizeConversions.SizeSuffix(threshold)}",
+                            $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full. " +
+                            $"{FileSizeConversions.SizeSuffix(availableSpace)} available space, threshold passed at {FileSizeConversions.SizeSuffix(threshold)}",
                         UserId = UserManager.Users.FirstOrDefault(i => i.Policy.IsAdministrator).InternalId.ToString(),
                         Name = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full",
                         Type = "Alert",
