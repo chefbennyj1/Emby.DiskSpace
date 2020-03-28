@@ -36,7 +36,7 @@ namespace DiskSpace.Api
             public string FriendlyAvailable { get; set; }
             public bool IsMonitored         { get; set; }
             public bool NotificationEnabled { get; set; }            
-            public string Threshold         { get; set; }
+            public long Threshold           { get; set; }
             public string Alias             { get; set; }
             public string Error             { get; set; }
         }
@@ -144,7 +144,7 @@ namespace DiskSpace.Api
                     var friendlyName = driveInfo.Name.Replace(@":\", "").Replace("/", "");
                     var isMonitored  = !config.IgnoredPartitions?.Exists(d => d == friendlyName) ?? true;
                     var threshold    = config.MonitoredPartitions != null ? config.MonitoredPartitions.Exists(p => p.Name == friendlyName) 
-                            ? config.MonitoredPartitions.FirstOrDefault(p => p.Name == friendlyName)?.Threshold : "" : "";
+                            ? config.MonitoredPartitions.FirstOrDefault(p => p.Name == friendlyName).Threshold : 0 : 0;
                     var alias = friendlyName;
                     if (config.MonitoredPartitions != null)
                     {

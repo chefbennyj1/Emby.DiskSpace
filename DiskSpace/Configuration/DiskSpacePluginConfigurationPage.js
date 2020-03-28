@@ -1,4 +1,4 @@
-﻿define(["require", "loading", "dialogHelper", "emby-checkbox", "emby-select"],
+﻿define(["require", "loading", "dialogHelper", "formDialogStyle", "emby-checkbox", "emby-select", "emby-toggle"],
     function(require, loading, dialogHelper) {
         var pluginId = "9ECAAC5F-435E-4C21-B1C0-D99423B68984";
 
@@ -166,8 +166,8 @@
                 html += '<div class="fieldDescription">Chart outline color for used disk space.</div>';
                 html += '</div>';
 
-                html += '<div class="paperList flex vertical-wrap padding">';
-
+                html += '<div class="paperList" style="margin:2em;padding:2em">';
+                html += '<h2>Active Partitions</h2>';
                 for (var i = 0; i <= driveData.length - 1; i++) {
                     html += getMonitoredPartitionsDialogHtml(driveData[i]);
                 }
@@ -214,14 +214,7 @@
                     dlg.querySelector('#usedSpaceFillColor').value             = config.UsedColor;
                     dlg.querySelector('#usedSpaceOutlineColor').value          = config.UsedOutline;
 
-                    /*
-                    if (!config.Threshold) { //default is 10
-                        config.Threshold = 10;
-                    }
-                   
-                    dlg.querySelector('#notificationAlertThreshold').value = config.Threshold;
-                    */
-
+                    
                     driveData.forEach((drive) => {
                         if (config.IgnoredPartitions) {
                             if (config.IgnoredPartitions.includes(drive.FriendlyName)) {
@@ -241,15 +234,7 @@
                     ApiClient.updatePluginConfiguration(pluginId, config).then(() => { });
                 });
 
-                /*
-                dlg.querySelector('#notificationAlertThreshold').addEventListener('change',
-                    () => {
-                        ApiClient.getPluginConfiguration(pluginId).then((config) => {
-                            config.Threshold = dlg.querySelector('#notificationAlertThreshold').value;
-                            ApiClient.updatePluginConfiguration(pluginId, config).then(() => { });
-                        });
-                    });
-                */
+                
                 dlg.querySelector('#availableSpaceFillColor').addEventListener('change',
                     () => {
                         dlg.querySelector('#availableSpaceFillColorText').value =
@@ -396,15 +381,17 @@
 
         function getMonitoredPartitionsDialogHtml(driveData) {
             var html = '';
-            html += '<div class="checkboxContainer checkboxContainer-withDescription" style="padding-right:2em">';
-            html += '<label class="emby-checkbox-label">';
-            html += '<input id="' + driveData.FriendlyName + '" type="checkbox" is="emby-checkbox" class="chkDiskPartition emby-checkbox" data-embycheckbox="true">';
-            html += '<span class="checkboxLabel">' + driveData.FriendlyName + '</span>';
-            html += '<span class="emby-checkbox-focushelper"></span>';
-           
-            html += '</label>';
-            html += '<div class="fieldDescription checkboxFieldDescription">';
+            html += '<div class="inputContainer">';
+            html += '<label style="width: auto;" class="mdl-switch mdl-js-switch">';
+            html += '<input is="emby-toggle" type="checkbox" id="' + driveData.FriendlyName + '"  class="chkDiskPartition noautofocus mdl-switch__input" data-embytoggle="true">';
+            html += '<span class="toggleButtonLabel mdl-switch__label">' + driveData.FriendlyName + '</span>';
+            html += '<div class="mdl-switch__trackContainer">';
+            html += '<div class="mdl-switch__track"></div>';
+            html += '<div class="mdl-switch__thumb">';
+            html += '<span class="mdl-switch__focus-helper"></span>';
             html += '</div>';
+            html += '</div>';
+            html += '</label>'; 
             html += '</div>';
 
             return html;
@@ -430,7 +417,7 @@
                 html += '<td data-title="Used" class="detailTableBodyCell fileCell-shaded"'                  + thresholdColor + '>' + drive.FriendlyUsed + '</td>';
                 html += '<td data-title="Available" class="detailTableBodyCell fileCell"'                    + thresholdColor + '>' + drive.FriendlyAvailable + '</td>';
                 html += '<td data-title="Notifications Enabled" class="detailTableBodyCell fileCell-shaded"' + thresholdColor + '>' + drive.NotificationEnabled + '</td>';
-                html += '<td data-title="Notification Threshold" class="detailTableBodyCell fileCell"'       + thresholdColor + '>' + (drive.Threshold && drive.Threshold.length ? drive.Threshold + 'GB' : 'unset') + '</td>';
+                html += '<td data-title="Notification Threshold" class="detailTableBodyCell fileCell"'       + thresholdColor + '>' + (drive.Threshold ? drive.Threshold + 'GB' : 'unset') + '</td>';
                 html += '<td data-title="Disk Space" class="detailTableBodyCell fileCell"'                   + thresholdColor + '>' + Math.round((drive.FreeSpace / total) * 100) + '%</td>';
 
                 html += '<td class="detailTableBodyCell fileCell">';
@@ -448,15 +435,14 @@
 
         
         function getDriveIconSvgHtml(threshold, freespace) {
-            return threshold && threshold.length
-                ? (freespace / 1073741824.0) < threshold
+            return threshold ? (freespace / 1073741824.0) < threshold
                 ? 'driveFull'
                 : 'drive'
                 : 'drive';
         }
 
         function getThresholdExceededColor(threshold, freespace) {
-            return threshold && threshold.length ? (freespace / 1073741824.0) <  threshold ? ' style="color:orangered;"' : '' : '';
+            return threshold ? (freespace / 1073741824.0) <  threshold ? ' style="color:orangered;"' : '' : '';
         }
 
         

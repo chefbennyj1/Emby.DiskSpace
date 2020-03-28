@@ -9,6 +9,7 @@ using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Notifications;
 using MediaBrowser.Model.Activity;
 using MediaBrowser.Model.IO;
+using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Notifications;
 using MediaBrowser.Model.Tasks;
 
@@ -63,41 +64,51 @@ namespace DiskSpace
                 }
 
                 if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
-                
-                var freeSpace    = Math.Round(driveInfo.AvailableFreeSpace / 1073741824.0);
 
-                double threshold = Math.Round(driveInfo.TotalSize / 1073741824.0);
+                var availableSpace = driveInfo.AvailableFreeSpace; // 1073741824.0);
+
+                long threshold = 0; // 1073741824.0;
 
                 if (config.MonitoredPartitions != null)
                 {
                     if (config.MonitoredPartitions.Exists(m => m.Name == friendlyName))
                     {
-                        if (config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName)?.Threshold != null)
-                        {
-                            threshold = Convert.ToDouble(config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName)?.Threshold + ".0");
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                        threshold = config.MonitoredPartitions.FirstOrDefault(m => m.Name == friendlyName).Threshold * 1073741824;
                     }
                 }
 
-                if (freeSpace > threshold) continue;
 
-                var request = new NotificationRequest()
+                if (threshold > availableSpace)
                 {
-                    Date             = DateTime.Now,
-                    Description      = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - {FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}, threshold {config.Threshold} Gb",
-                    Level            = NotificationLevel.Warning,
-                    Name             = "Disk space almost full",
-                    NotificationType = "DiskSpaceAlmostFull",
-                    SendToUserMode   = SendToUserType.Admins,
-                    Url              = "",
-                    UserIds          = UserManager.Users.Where(i => i.Policy.IsAdministrator).Select(i => i.InternalId).ToArray()
-                };
-                
-                await NotificationManager.SendNotification(request, CancellationToken.None);
+                    var request = new NotificationRequest()
+                    {
+                        Date = DateTime.Now,
+                        Description = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - " +
+                                           $"{FileSizeConversions.SizeSuffix(driveInfo.AvailableFreeSpace)}, threshold {FileSizeConversions.SizeSuffix(threshold)}",
+                        Level = NotificationLevel.Warning,
+                        Name = "Disk space almost full",
+                        NotificationType = "DiskSpaceAlmostFull",
+                        SendToUserMode = SendToUserType.Admins,
+                        Url = "",
+                        UserIds = UserManager.Users.Where(i => i.Policy.IsAdministrator).Select(i => i.InternalId).ToArray()
+                    };
+
+                    await NotificationManager.SendNotification(request, CancellationToken.None);
+
+                    ActivityManager.Create(new ActivityLogEntry()
+                    {
+                        Date = DateTimeOffset.Now,
+                        Id = new Random().Next(1000, 9999),
+                        Overview =
+                            $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full - " +
+                            $"{FileSizeConversions.SizeSuffix(availableSpace)}, threshold {FileSizeConversions.SizeSuffix(threshold)}",
+                        UserId = UserManager.Users.FirstOrDefault(i => i.Policy.IsAdministrator).InternalId.ToString(),
+                        Name = $" {driveInfo.Name} ({driveInfo.VolumeLabel}) disk space almost full",
+                        Type = "Alert",
+                        ItemId = driveInfo.Name,
+                        Severity = LogSeverity.Error
+                    });
+                }
             }
 
             progress.Report(100.0);
