@@ -13,7 +13,7 @@ namespace DiskSpace
     public class Plugin : BasePlugin<PluginConfiguration>, IHasThumbImage, IHasWebPages
     {
         public static Plugin Instance { get; set; }
-        public ImageFormat ThumbImageFormat => ImageFormat.Jpg;
+        public ImageFormat ThumbImageFormat => ImageFormat.Gif;
 
         private readonly Guid _id = new Guid("9ECAAC5F-435E-4C21-B1C0-D99423B68984");
         public override Guid Id => _id;
@@ -24,7 +24,7 @@ namespace DiskSpace
         public Stream GetThumbImage()
         {
             var type = GetType();
-            return type.Assembly.GetManifestResourceStream(type.Namespace + ".thumb.jpg");
+            return type.Assembly.GetManifestResourceStream(type.Namespace + ".thumb.gif");
         }
 
         public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths,
