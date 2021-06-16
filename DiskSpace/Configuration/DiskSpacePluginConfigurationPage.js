@@ -75,7 +75,7 @@
                             config.MonitoredPartitions = [thresholdEntry]
                         }
                         ApiClient.updatePluginConfiguration(pluginId, config).then(() => {
-                            require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
+                            require([Dashboard.getConfigurationResourceUrl('Chart.js')],
                                 (chart) => {
                                     renderChartAndTableData(view, chart);
                                     dialogHelper.close(dlg);
@@ -362,7 +362,7 @@
                 dlg.querySelector('#okButton').addEventListener('click',
                     (event) => {
                         event.preventDefault();
-                        require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
+                        require([Dashboard.getConfigurationResourceUrl('Chart.js')],
                             (chart) => {
                                 renderChartAndTableData(view, chart);
                                 dialogHelper.close(dlg);
@@ -495,7 +495,7 @@
                         },
                         options: {
 
-                            "cutoutPercentage": 40,
+                            "cutout": 40,
 
                             tooltips: {
                                 callbacks: {
@@ -609,7 +609,7 @@
                     var chartContainer = view.querySelector('.diskSpaceChartResultBody');
                     var tableContainer = view.querySelector('.tblPartitionResults');
 
-                    require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
+                    require([Dashboard.getConfigurationResourceUrl('Chart.js')],
                         (chart) => {
 
                             renderChartAndTableData(view, chart);
@@ -661,7 +661,7 @@
                                                 ? e.target.innerHTML = 'format_list_bulleted'
                                                 : e.target.querySelector('i').innerHTML = 'format_list_bulleted';
 
-                                            require([Dashboard.getConfigurationResourceUrl('Chart.bundle.js')],
+                                            require([Dashboard.getConfigurationResourceUrl('Chart.js')],
                                                 (chart) => {
                                                     ApiClient.updatePluginConfiguration(pluginId, config).then((r) => {
                                                         renderChartAndTableData(view, chart);

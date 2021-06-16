@@ -106,7 +106,7 @@ namespace DiskSpace.Api
                     }
                     catch (Exception e)
                     {
-                        logger.Error(e.Message);
+                        //logger.Error(e.Message);
                     }
 
                     try
@@ -116,7 +116,7 @@ namespace DiskSpace.Api
                     }
                     catch (Exception e)
                     {
-                        logger.Error(e.Message);
+                        //logger.Error(e.Message);
                     }
 
                     try

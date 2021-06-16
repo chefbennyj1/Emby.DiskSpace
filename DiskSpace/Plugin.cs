@@ -50,7 +50,7 @@ namespace DiskSpace
             },
             new PluginPageInfo
             {
-                Name = "Chart.bundle.js",
+                Name = "Chart.js",
                 EmbeddedResourcePath = GetType().Namespace + ".Configuration.Chart.js"
             }
         };
