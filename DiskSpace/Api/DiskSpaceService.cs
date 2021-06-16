@@ -104,8 +104,9 @@ namespace DiskSpace.Api
 
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        logger.Error(e.Message);
                     }
 
                     try
@@ -113,13 +114,15 @@ namespace DiskSpace.Api
                         if (fileSystemMetadata.Name.Substring(1, 2).Equals(":\\") &&
                             fileSystemMetadata.Name.Split('\\').Length > 2) continue; //Windows
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        logger.Error(e.Message);
                     }
 
                     try
                     {
-                        switch (fileSystemMetadata.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
+                        switch (fileSystemMetadata.Name.Split('/')[1]
+                        ) //Ignore these mount types in Linux that get returned from the Emby API
                         {
                             case "etc":
                             case "dev":
@@ -129,7 +132,10 @@ namespace DiskSpace.Api
                             case "proc": continue;
                         }
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        logger.Error(e.Message);
+                    }
 
                     var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
@@ -181,6 +187,7 @@ namespace DiskSpace.Api
             }
             catch (UnauthorizedAccessException e)
             {
+                logger.Error(e.Message);
                 // Have your code handle insufficient permissions here
                 return null;
             }

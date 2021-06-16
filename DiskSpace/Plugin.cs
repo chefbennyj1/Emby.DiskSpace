@@ -15,8 +15,8 @@ namespace DiskSpace
         public static Plugin Instance { get; set; }
         public ImageFormat ThumbImageFormat => ImageFormat.Gif;
 
-        private readonly Guid _id = new Guid("9ECAAC5F-435E-4C21-B1C0-D99423B68984");
-        public override Guid Id => _id;
+        public override Guid Id => new Guid("9ECAAC5F-435E-4C21-B1C0-D99423B68984");
+       
 
         public override string Name => "Disk Space";
 
@@ -51,7 +51,7 @@ namespace DiskSpace
             new PluginPageInfo
             {
                 Name = "Chart.bundle.js",
-                EmbeddedResourcePath = GetType().Namespace + ".Configuration.Chart.bundle.js"
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.Chart.js"
             }
         };
     }
