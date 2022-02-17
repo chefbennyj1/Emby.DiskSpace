@@ -121,8 +121,7 @@ namespace DiskSpace.Api
 
                     try
                     {
-                        switch (fileSystemMetadata.Name.Split('/')[1]
-                        ) //Ignore these mount types in Linux that get returned from the Emby API
+                        switch (fileSystemMetadata.Name.Split('/')[1]) //Ignore these mount types in Linux that get returned from the Emby API
                         {
                             case "etc":
                             case "dev":
@@ -140,9 +139,7 @@ namespace DiskSpace.Api
                     var driveInfo = new DriveInfo(fileSystemMetadata.Name);
 
                     if (driveInfo.TotalSize <= 0) continue; //this drive is too small to be listed
-
-                    // ReSharper disable ComplexConditionExpression
-                    // ReSharper disable TooManyChainedReferences
+                    
                     var config = Plugin.Instance.Configuration;
 
                     Plugin.Instance.UpdateConfiguration(config);
@@ -163,7 +160,7 @@ namespace DiskSpace.Api
                             }
                         }
                     }
-                    
+                   
                     drives.Add(new DriveData()
                     {
                         
@@ -190,7 +187,7 @@ namespace DiskSpace.Api
             catch (UnauthorizedAccessException e)
             {
                 logger.Error(e.Message);
-                // Have your code handle insufficient permissions here
+                // Have the code handle insufficient permissions here
                 return null;
             }
 
