@@ -50,6 +50,36 @@ namespace DiskSpace
             },
             new PluginPageInfo
             {
+                Name = "DiskSpacePluginTableConfigurationPage",
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginTableConfigurationPage.html"
+            },
+            new PluginPageInfo
+            {
+                Name = "DiskSpacePluginTableConfigurationPageJS",
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginTableConfigurationPage.js"
+            },
+            new PluginPageInfo
+            {
+                Name = "DiskSpacePluginPolarAreaConfigurationPageJS",
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginPolarAreaConfigurationPage.js"
+            },
+            new PluginPageInfo
+            {
+                Name = "DiskSpacePluginPolarAreaConfigurationPage",
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginPolarAreaConfigurationPage.html"
+            },
+            new PluginPageInfo
+            {
+                Name = "DiskSpacePluginSettingsConfigurationPage",
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginSettingsConfigurationPage.html"
+            },
+            new PluginPageInfo
+            {
+                Name = "DiskSpacePluginSettingsConfigurationPageJS",
+                EmbeddedResourcePath = GetType().Namespace + ".Configuration.DiskSpacePluginSettingsConfigurationPage.js"
+            },
+            new PluginPageInfo
+            {
                 Name = "Chart.js",
                 EmbeddedResourcePath = GetType().Namespace + ".Configuration.Chart.js"
             }

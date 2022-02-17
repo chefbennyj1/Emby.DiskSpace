@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-<PropertyGroup> <TargetFrameworks>netstandard2.0;</TargetFrameworks> <AssemblyVersion>1.0.5.6</AssemblyVersion> <FileVersion>1.0.5.6</FileVersion> <Version>1.0.5.6</Version> </PropertyGroup>
+<PropertyGroup> <TargetFrameworks>netstandard2.0;</TargetFrameworks> <AssemblyVersion>1.0.6.0</AssemblyVersion> <FileVersion>1.0.6.0</FileVersion> <Version>1.0.6.0</Version> </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
   <CodeAnalysisRuleSet />
@@ -14,6 +14,12 @@
   <None Remove="Configuration\Chart.js" />
   <None Remove="Configuration\DiskSpacePluginConfigurationPage.html" />
   <None Remove="Configuration\DiskSpacePluginConfigurationPage.js" />
+  <None Remove="Configuration\DiskSpacePluginPolarAreaConfigurationPage.html" />
+  <None Remove="Configuration\DiskSpacePluginPolarAreaConfigurationPage.js" />
+  <None Remove="Configuration\DiskSpacePluginSettingsConfigurationPage.html" />
+  <None Remove="Configuration\DiskSpacePluginSettingsConfigurationPage.js" />
+  <None Remove="Configuration\DiskSpacePluginTableConfigurationPage.html" />
+  <None Remove="Configuration\DiskSpacePluginTableConfigurationPage.js" />
   <None Remove="thumb.gif" />
 </ItemGroup>
 
@@ -21,6 +27,12 @@
   <EmbeddedResource Include="Configuration\Chart.js" />
   <EmbeddedResource Include="Configuration\DiskSpacePluginConfigurationPage.html" />
   <EmbeddedResource Include="Configuration\DiskSpacePluginConfigurationPage.js" />
+  <EmbeddedResource Include="Configuration\DiskSpacePluginPolarAreaConfigurationPage.html" />
+  <EmbeddedResource Include="Configuration\DiskSpacePluginPolarAreaConfigurationPage.js" />
+  <EmbeddedResource Include="Configuration\DiskSpacePluginSettingsConfigurationPage.html" />
+  <EmbeddedResource Include="Configuration\DiskSpacePluginSettingsConfigurationPage.js" />
+  <EmbeddedResource Include="Configuration\DiskSpacePluginTableConfigurationPage.html" />
+  <EmbeddedResource Include="Configuration\DiskSpacePluginTableConfigurationPage.js" />
   <EmbeddedResource Include="thumb.gif" />
 </ItemGroup>
 

@@ -24,6 +24,7 @@ namespace DiskSpace.Api
         [Route("/GetDriveData", "GET", Summary = "Get Drive Data")]
         public class DriveData : IReturn<string>
         {
+            public bool IsReady             { get; set; }
             public string DriveName         { get; set; }
             public string VolumeLabel       { get; set; }
             public long TotalSize           { get; set; }
@@ -54,7 +55,6 @@ namespace DiskSpace.Api
             logger              = logManager.GetLogger(GetType().Name);
             LibraryManager      = libMan;
             NotificationManager = noteMan;
-
         }
 
         public string Get(TotalStorage request)
@@ -163,9 +163,11 @@ namespace DiskSpace.Api
                             }
                         }
                     }
-
+                    
                     drives.Add(new DriveData()
                     {
+                        
+                        IsReady                                               = driveInfo.IsReady,
                         DriveName                                             = driveInfo.Name,
                         VolumeLabel                                           = driveInfo.VolumeLabel,
                         TotalSize                                             = driveInfo.TotalSize,

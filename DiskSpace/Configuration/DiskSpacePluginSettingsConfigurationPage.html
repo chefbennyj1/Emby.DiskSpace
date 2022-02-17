@@ -1,0 +1,58 @@
+﻿<div data-role="page" class=" type-interior pluginConfigurationPage DiskSpacePluginSettingsConfigurationPage" data-require="emby-button,emby-input,emby-select,emby-checkbox" data-controller="__plugin/DiskSpacePluginSettingsConfigurationPageJS">
+    <div class="content-primary">
+        <form class="verticalSection scrollY">
+            
+                <h2>Active Partitions</h2>
+                <div class="paperList" style="margin: 2em; padding: 2em">
+                    <div class="partitionContainer" style="display: flex; flex-wrap: wrap; justify-content: space-between;"></div>
+                </div>
+
+                <h2>Card Styles</h2>
+
+                <div class="inputContainer" style="flex-grow: 1">
+                    <label class="inputLabel inputLabelUnfocused" for="driveChartCutoutPercentage">Drive chart cutout percentage</label>
+                    <input type="number" min="20" max="99" name="driveChartCutoutPercentage" id="driveChartCutoutPercentage" label="Drive chart cutout percentage" class="emby-input" style="height: 2em">
+                </div>
+
+
+                <div class="inputContainer">
+
+                    <label class="inputLabel inputLabelUnfocused" for="availableSpaceFillColor">Available space fill color</label>
+                    <input type="color" name="availableSpaceFillColor" id="availableSpaceFillColor" label="Available space fill color" class="emby-input" style="height: 2em">
+
+                    <input type="text" name="availableSpaceFillColorText" id="availableSpaceFillColorText" class="emby-input">
+                    <div class="fieldDescription">Chart fill color for available disk space.</div>
+
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="availableSpaceOutlineColor">Available space outline</label>
+                    <input type="color" name="availableSpaceOutlineColor" id="availableSpaceOutlineColor" label="Available space outline color" class="emby-input" style="height: 2em">
+
+                    <input type="text" name="availableSpaceFillColorText" id="availableSpaceOutlineColorText" class="emby-input">
+                    <div class="fieldDescription">Chart outline color for available disk space.</div>
+
+                </div>
+
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="usedSpaceFillColor">Used space fill color</label>
+                    <input type="color" name="usedSpaceFillColor" id="usedSpaceFillColor" label="Used space fill color" class="emby-input" style="height: 2em">
+
+                    <input type="text" name="usedSpaceFillColorText" id="usedSpaceFillColorText" class="emby-input">
+                    <div class="fieldDescription">Chart fill color for used disk space.</div>
+
+                </div>
+
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="usedSpaceOutlineColor">Used space outline color</label>
+                    <input type="color" name="usedSpaceOutlineColor" id="usedSpaceOutlineColor" label="Used space outline color" class="emby-input" style="height: 2em">
+
+                    <input type="text" name="usedSpaceOutlineColorText" id="usedSpaceOutlineColorText" class="emby-input">
+                    <div class="fieldDescription">Chart outline color for used disk space.</div>
+
+                </div>
+        </form>
+    </div>
+</div>

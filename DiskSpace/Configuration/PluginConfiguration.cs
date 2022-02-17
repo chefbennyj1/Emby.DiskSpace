@@ -12,6 +12,7 @@ namespace DiskSpace.Configuration
         public List<MonitoredPartition> MonitoredPartitions { get; set; }
         public List<string> IgnoredPartitions               { get; set; }
         public string DataDisplayRender                     { get; set; }
+        public int ChartCutoutPercentage                    { get; set; } = 40;
     }
 
     public class MonitoredPartition
