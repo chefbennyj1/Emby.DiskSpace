@@ -80,29 +80,30 @@
             dlg.querySelector('#aliasPartitionName').value = d.Alias;
 
             dlg.querySelector('#okButton').addEventListener('click',
-                (event) => {
+                async (event) => {
                     event.preventDefault();
-                    ApiClient.getPluginConfiguration(pluginId).then((config) => {
-                        var thresholdEntry = {
-                            Name: partitionName,
-                            Threshold: dlg.querySelector('#notificationAlertThreshold').value,
-                            Alias: dlg.querySelector('#aliasPartitionName').value
-                                
+
+                    var config = await ApiClient.getPluginConfiguration(pluginId);
+
+                    var thresholdEntry = {
+                        Name     : partitionName,
+                        Threshold: dlg.querySelector('#notificationAlertThreshold').value,
+                        Alias    : dlg.querySelector('#aliasPartitionName').value
                     }
-                        if (config.MonitoredPartitions) {
-                            config.MonitoredPartitions = config.MonitoredPartitions.filter((entry) => entry.Name !== partitionName);
-                            config.MonitoredPartitions.push(thresholdEntry);
-                        } else {
-                            config.MonitoredPartitions = [thresholdEntry]
-                        }
-                        ApiClient.updatePluginConfiguration(pluginId, config).then(() => {
-                            require([Dashboard.getConfigurationResourceUrl('Chart.js')],
-                                (chart) => {
-                                    renderChartData(view, chart);
-                                    dialogHelper.close(dlg);
-                                });
+                    if (config.MonitoredPartitions) {
+                        config.MonitoredPartitions = config.MonitoredPartitions.filter((entry) => entry.Name !== partitionName);
+                        config.MonitoredPartitions.push(thresholdEntry);
+                    } else {
+                        config.MonitoredPartitions = [thresholdEntry]
+                    }
+
+                    await ApiClient.updatePluginConfiguration(pluginId, config);
+
+                    require([Dashboard.getConfigurationResourceUrl('Chart.js')],
+                        async (chart) => {
+                            await renderChartData(view, chart);
+                            dialogHelper.close(dlg);
                         });
-                    });
                 });
 
             dlg.querySelector('.btnCloseDialog').addEventListener('click',
@@ -192,65 +193,48 @@
             
         }
 
-        function renderChartData(view, Chart) {
-           
-            ApiClient.getPluginConfiguration(pluginId).then((config) => {
+        async function renderChartData(view, Chart) {
 
-                var chartRenderContainer = view.querySelector('.diskSpaceChartResultBody');
+            var config = await ApiClient.getPluginConfiguration(pluginId);
 
-                chartRenderContainer.innerHTML = '';
+            var chartRenderContainer = view.querySelector('.diskSpaceChartResultBody');
 
-                ApiClient.getJSON(ApiClient.getUrl("GetDriveData")).then((driveData) => {
+            chartRenderContainer.innerHTML = '';
 
-                    var html = '';
-                    if (driveData.Error) {
-                        html += '<h1>' + driveData.Error + '</h1>';
-                        chartRenderContainer.innerHTML = html;
-                        return;
-                    }
+            var driveData = await ApiClient.getJSON(ApiClient.getUrl("GetDriveData"));
 
-                    renderDiskSpaceResultChartHtml(driveData, config, chartRenderContainer, Chart);
+            var html = '';
+            if (driveData.Error) {
+                html += '<h1>' + driveData.Error + '</h1>';
+                chartRenderContainer.innerHTML = html;
+                return;
+            }
 
-                   
+            renderDiskSpaceResultChartHtml(driveData, config, chartRenderContainer, Chart);
 
-                    view.querySelectorAll('.visualCardBox').forEach((button) => {
-                        button.addEventListener('click',
-                            (e) => {
-                                openPartitionDialog(e.target.closest('.visualCardBox').id, view, driveData);
-                            });
+            view.querySelectorAll('.visualCardBox').forEach((button) => {
+                button.addEventListener('click',
+                    (e) => {
+                        openPartitionDialog(e.target.closest('.visualCardBox').id, view, driveData);
                     });
-
-                    view.querySelectorAll('.partitionOptions').forEach((button) => {
-                        button.addEventListener('click',
-                            (e) => {
-                                openPartitionDialog(e.target.closest('.partitionOptions').id, view, driveData);
-                            });
-                    });
-
-                   
-                });
-
             });
-
         }
 
         return function(view) {
             
             view.addEventListener('viewshow',
-                () => {
+                async () => {
 
                     mainTabsManager.setTabs(this, 0, getTabs);
 
-                    ApiClient.getJSON(ApiClient.getUrl('GetTotalStorage')).then((data) => {
-                        view.querySelector('.totalStorage').innerHTML = 'Total Storage: ' + data.Total;
-                    });
-
-                  
+                    const data = await ApiClient.getJSON(ApiClient.getUrl('GetTotalStorage'))
+                    view.querySelector('.totalStorage').innerHTML = 'Total Storage: ' + data.Total;
 
                     require([Dashboard.getConfigurationResourceUrl('Chart.js')],
-                        (chart) => {
-                            renderChartData(view, chart);
+                        async (chart) => {
+                            await renderChartData(view, chart);
                         });
+
                 });
         }
     });
